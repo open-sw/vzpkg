@@ -1,0 +1,41 @@
+#!/bin/bash
+# $Id: vzyum,v 1.1 2005/05/23 18:55:53 kir Exp $
+#
+# vzyum - a wrapper for yum to use yum for Virtuozzo VPS.
+#
+# Copyright (C) 2005, SWsoft.
+# By Kir Kolyshkin.
+
+TOOLDIR=/usr/share/vzpkg
+
+. ${TOOLDIR}/functions
+
+log4 Started $0 $*
+
+function usage() {
+	cat << USAGE_EOF 1>&2
+Usage: $PROGNAME <VPSID> <arguments>
+  where <arguments> are yum arguments.
+USAGE_EOF
+	exit $1
+}
+
+if test $# -lt 2; then
+        log2 "Wrong number of parameters specified"
+        usage
+fi
+
+get_veid $1
+shift
+# Sanity checks
+STATUS=`$VZCTL status $VEID` || abort "Can't get status for VPS $VEID: " \
+	"vzctl status failed with code $?"
+echo $STATUS | grep -qw "exist" || abort "VPS $VEID not exist!"
+echo $STATUS | grep -qw "running" || abort "VPS $VEID not running; " \
+	"you should start it first"
+get_ve_os_template $VEID || abort "Can't get OSTEMPLATE for VPS $VEID"
+TEMPLATE=`get_vz_var TEMPLATE`
+YUM_ARGS=`yum_conf`
+YUM_ARGS="$YUM_ARGS -d 1 -e 10 --installroot $VE_ROOT"
+log3 exec yum $YUM_ARGS $*
+exec yum $YUM_ARGS $*

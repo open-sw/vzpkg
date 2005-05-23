@@ -1,0 +1,205 @@
+#!/bin/bash
+# $Id: cache-os,v 1.1 2005/05/23 18:55:53 kir Exp $
+#
+# Copyright (C) 2003, 2004, 2005 by SWsoft.
+#
+# Creates/updates OS template cache.
+
+#DEBUG_LEVEL=5
+TOOLDIR=/usr/share/vzpkg
+
+
+. ${TOOLDIR}/functions
+VZCTL="$VZCTL --quiet --skiplock"
+
+log4 Started $0 $*
+
+### Functions
+
+function usage()
+{
+	echo "Usage: $PROGNAME [-r | -f] <template>"
+	exit 0
+}
+
+# Kills/umounts/destroys VE.
+# Parameters:
+#  $1 - VE ID
+function cleanup()
+{
+	local veid=$1
+	log4 "Called cleanup($veid)"
+	log4 "Calling vzctl stop $veid"
+	$VZCTL stop $veid --fast
+	log4 "Calling vzctl umount $veid"
+	$VZCTL umount $veid
+	log4 "Calling vzctl destroy $veid"
+	$VZCTL destroy $veid
+	log4 "Calling rm -f $VECFGDIR/$veid.*"
+	rm -f $VECFGDIR/$veid.*
+	log4 "ls -l $VE_ROOT $VE_PRIVATE:"
+	log4 `ls -l $VE_ROOT $VE_PRIVATE`
+	unlock_ve $veid
+	exit 1
+}
+
+
+
+
+if test $# -lt 1; then
+	log2 "Wrong number of parameters specified"
+	usage
+fi
+
+REMOVE=''
+FORCE=''
+case $1 in
+	-r | --remove)
+		REMOVE=yes
+		shift
+		;;
+	-f | --force)
+		FORCE=yes
+		shift
+		;;
+	-*)
+		log2 "Unknown option: $1"
+		usage
+esac
+
+OSTEMPLATE=$1
+check_ost_exist $OSTEMPLATE
+CORE=$OSTEMPLATE-vps-template
+CACHE=$OSTEMPLATE.tar.gz
+TEMPLATE=`get_vz_var TEMPLATE`
+CACHEDIR=`get_cache_dir`
+
+if test "x$REMOVE" != "x"; then
+	log3 "Removing OS template cache for $OSTEMPLATE template"
+	log4 "Cache file name: $CACHEDIR/$CACHE"
+	test -f $CACHEDIR/$CACHE || \
+		log2 "Cache file $CACHEDIR/$CACHE is not found!"
+	rm -f $CACHEDIR/$CACHE
+	exit 0
+fi
+
+VEID=`find_lock_nearest_veid 10000` || abort "Can't find free VEID"
+function terminate()
+{
+	log3 "\nTerminating..."
+	cleanup $VEID
+}
+trap terminate 15
+log4 "Using temporary VEID $VEID"
+VE_PRIVATE=`get_vz_var VE_PRIVATE`
+VE_ROOT=`get_vz_var VE_ROOT`
+
+
+BASEDIR=`name2basedir $OSTEMPLATE`
+log5 BASEDIR=$BASEDIR
+THISTEMPLATE=$TEMPLATE/$BASEDIR
+VECFG=$VECFGDIR/$VEID.conf
+VECFGSAMPLE=$VECFGDIR/ve-unlimited.conf-sample
+# simple init - for initial VE startup, statically linked
+MYINIT=${TOOLDIR}/myinit
+
+
+set -u
+cp -f $VECFGSAMPLE $VECFG
+echo "DISK_QUOTA=no" >> $VECFG
+mkdir -p $VE_ROOT $VE_PRIVATE
+log4 Mounting VE private area
+$VZCTL mount $VEID
+# FIXME: why not use vzctl mount???
+#mount -n -o bind $VE_PRIVATE $VE_ROOT
+
+test -f $CACHEDIR/$CACHE && log4 "File $CACHEDIR/$CACHE exists"
+
+# Check if we are going to update cache
+if test -f $CACHEDIR/$CACHE -a "x$FORCE" = "x"; then
+	log3 "Updating cache for $OSTEMPLATE OS template"
+	OPERATION="update"
+	log4 "Untarring $CACHEDIR/$CACHE"
+	export VE_PRVT=$VE_PRIVATE
+	export PRIVATE_TEMPLATE=$CACHEDIR/$CACHE
+	$VECFGDIR/vps-create
+	RET=$?
+	test $RET -eq 0 || abort "Failed to create VE based on cache $CACHE"
+else
+	log3 "Creating cache for $OSTEMPLATE OS template"
+	OPERATION="install"
+	# Fake init placed in order for VE to be able to start
+	mkdir $VE_ROOT/sbin
+	cp -f $MYINIT $VE_ROOT/sbin/init || \
+		abort "Unable to copy $MYINIT to VPS root ($VE_ROOT)"
+	# initial VE lacks mount executable -
+	# mount /proc using VE0 mount
+	log4 Mounting proc filesystem to VE
+	mkdir $VE_ROOT/proc
+	mount -n -t proc proc $VE_ROOT/proc
+fi
+
+
+# Run setup-pre script
+call_template_script $OPERATION-pre
+
+# Start VE now
+log4 Starting VE
+$VZCTL start $VEID || cleanup $VEID
+
+
+# install packages
+if test $OPERATION = 'install'; then
+	LIST=`get_packages $OSTEMPLATE`
+	YUM_CMD="install $LIST"
+elif test $OPERATION = 'update'; then
+	YUM_CMD="update"
+else
+	# this shouldn't happen
+	abort "Internal error: unknown OPERATION $OPERATION"
+fi
+
+# FIXME: ugly hack to not letting yum look into /etc/yum.repos.d/
+#DISABLE_REPOS=`cat /etc/yum.repos.d/* /etc/yum.conf | egrep '^\[.*\]$' | \
+#	sed  's/^\[\(.*\)\]$/--disablerepo="\1"/'`
+
+log4 "Running yum `yum_conf` " \
+	"$YUM_CMD"
+# -d $DEBUG_LEVEL
+yum -y -d 1 -e 10 --installroot $VE_ROOT `yum_conf` $YUM_CMD
+YUMEC=$?
+log4 Yum exited with code $YUMEC
+test $YUMEC -eq 0 || cleanup $VEID
+
+call_template_script $OPERATION-post
+
+# Stop this VE
+log4 Stopping VE
+$VZCTL stop $VEID --fast
+log4 vzctl exit code $?
+
+# Umount VE
+log4 Unmounting VE
+$VZCTL umount $VEID
+log4 vzctl exit code $?
+
+# Create tarball
+pushd $VE_PRIVATE > /dev/null
+log3 "Packing cache file $CACHE ... "
+mkdir -p $CACHEDIR
+tar --numeric-owner -zcf $CACHE . --exclude $CACHE
+#pwd
+#ls -lh
+test -f $CACHEDIR/$CACHE && mv $CACHEDIR/$CACHE $CACHEDIR/$CACHE-old
+mv $CACHE $CACHEDIR
+CACHESIZE=`ls -lh $CACHEDIR/$CACHE | awk '{print $5}'`
+
+log3 "Cache file $CACHE [$CACHESIZE] created."
+popd > /dev/null
+
+log4 Destroying VE
+$VZCTL destroy $VEID
+log4 vzctl exit code $?
+log4 rm -f $VECFGDIR/$VEID.*
+rm -f $VECFGDIR/$VEID.*
+unlock_ve $VEID
