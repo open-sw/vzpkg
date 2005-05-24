@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzyum,v 1.1 2005/05/23 18:55:53 kir Exp $
+# $Id: vzyum,v 1.2 2005/05/24 15:53:03 kir Exp $
 #
 # vzyum - a wrapper for yum to use yum for Virtuozzo VPS.
 #
@@ -36,6 +36,6 @@ echo $STATUS | grep -qw "running" || abort "VPS $VEID not running; " \
 get_ve_os_template $VEID || abort "Can't get OSTEMPLATE for VPS $VEID"
 TEMPLATE=`get_vz_var TEMPLATE`
 YUM_ARGS=`yum_conf`
-YUM_ARGS="$YUM_ARGS -d 1 -e 10 --installroot $VE_ROOT"
+YUM_ARGS="$YUM_ARGS --installroot $VE_ROOT"
 log3 exec yum $YUM_ARGS $*
 exec yum $YUM_ARGS $*
