@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.1 2005/05/23 18:55:53 kir Exp $
+# $Id: cache-os,v 1.2 2005/05/24 15:52:31 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005 by SWsoft.
 #
@@ -80,6 +80,8 @@ if test "x$REMOVE" != "x"; then
 	test -f $CACHEDIR/$CACHE || \
 		log2 "Cache file $CACHEDIR/$CACHE is not found!"
 	rm -f $CACHEDIR/$CACHE
+	# If there is a symlink (for older vzctl) remove it as well
+	test -L $TEMPLATE/$CACHE && rm -f $TEMPLATE/$CACHE
 	exit 0
 fi
 
@@ -99,7 +101,7 @@ BASEDIR=`name2basedir $OSTEMPLATE`
 log5 BASEDIR=$BASEDIR
 THISTEMPLATE=$TEMPLATE/$BASEDIR
 VECFG=$VECFGDIR/$VEID.conf
-VECFGSAMPLE=$VECFGDIR/ve-unlimited.conf-sample
+VECFGSAMPLE=$VECFGDIR/ve-vps.basic.conf-sample
 # simple init - for initial VE startup, statically linked
 MYINIT=${TOOLDIR}/myinit
 
@@ -166,7 +168,7 @@ fi
 log4 "Running yum `yum_conf` " \
 	"$YUM_CMD"
 # -d $DEBUG_LEVEL
-yum -y -d 1 -e 10 --installroot $VE_ROOT `yum_conf` $YUM_CMD
+yum -y --installroot $VE_ROOT `yum_conf` $YUM_CMD
 YUMEC=$?
 log4 Yum exited with code $YUMEC
 test $YUMEC -eq 0 || cleanup $VEID
@@ -192,6 +194,10 @@ tar --numeric-owner -zcf $CACHE . --exclude $CACHE
 #ls -lh
 test -f $CACHEDIR/$CACHE && mv $CACHEDIR/$CACHE $CACHEDIR/$CACHE-old
 mv $CACHE $CACHEDIR
+# For older vzctl which expect tarballs in $TEMPLATE, not $TEMPLATE/cache
+rm -f $TEMPLATE/$CACHE
+ln -sf cache/$CACHE $TEMPLATE/$CACHE
+
 CACHESIZE=`ls -lh $CACHEDIR/$CACHE | awk '{print $5}'`
 
 log3 "Cache file $CACHE [$CACHESIZE] created."
