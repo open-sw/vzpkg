@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.1 2005/05/23 18:55:53 kir Exp $
+# $Id: functions,v 1.2 2005/05/24 07:37:55 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft.
 # By Kir Kolyshkin.
@@ -359,14 +359,14 @@ function get_packages()
 	if test $# -eq 1; then
 		# OS template
 		local file=$cfgdir/ostemplate.list
-		cat $file | egrep -v '^#'
+		cat $file | egrep -v '^#|^[[:space:]]*$'
 	elif test $# -eq 2; then
 		# App template
 		appname=$2
 		local file=$cfgdir/$appname/package-list
-		cat $file | egrep -v '^#'
+		cat $file | egrep -v '^#|^[[:space:]]*$'
 	else
-		log1 "Internal error! get_tmpl_config requires 1 or 2 args!"
+		log1 "Internal error! get_packages requires 1 or 2 args!"
 		exit 1
 	fi
 }
