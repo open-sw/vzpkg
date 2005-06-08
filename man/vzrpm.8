@@ -1,0 +1,20 @@
+.TH vzrpm 8 "Jun 08, 2005" "Open Virtuozzo" "Virtual Private Servers"
+.SH NAME
+vzrpm \- rpm wrapper for use with Open Virtuozzo's VPS
+.SH SYNOPSIS
+\fBvzrpm\fR \fIVPSID\fR \fIrpmoption\fR [...]
+.SH DESCRIPTION
+This is a simple \fBrpm\fR(\fI8\fR) wrapper, which makes it easy to use
+\fBrpm\fR(\fI8\fR) for a given VPS from the Open Virtuozzo host system.
+Use it like ordinary \fBrpm\fR(\fI8\fR), just give a \fIVPSID\fR as
+a first argument.
+.SH EXAMPLES
+\fB\f(CWvzrpm 123 -qa\fR
+.PP
+\fB\f(CWvzrpm 123 -ihv package-1.0-1.i386.rpm\fR
+.SH SEE ALSO
+.BI vzyum (8)\fR.
+.SH COPYRIGHT
+Copyright (C) 2005, SWsoft. Distributed under QPL.
+.SH AUTHOR
+Kir Kolyshkin <kir@sw.ru>

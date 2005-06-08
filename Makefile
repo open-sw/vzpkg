@@ -7,9 +7,9 @@ LIBDIR=$(DESTDIR)/usr/share/vzpkg
 MANDIR=$(DESTDIR)/usr/share/man
 MAN8DIR=$(MANDIR)/man8
 
-BIN_FILES = vzpkgcache vzyum
+BIN_FILES = vzpkgcache vzyum vzrpm vzpkgadd vzpkgrm
 LIB_FILES = functions cache-os myinit
-MAN8_FILES = man/vzpkgcache.8 man/vzyum.8
+MAN8_FILES = man/vzpkgcache.8 man/vzyum.8 man/vzrpm.8
 
 myinit: init.c
 	gcc -O2 -static -s -o $@ $<
