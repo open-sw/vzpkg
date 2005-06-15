@@ -1,6 +1,16 @@
 #!/bin/bash
-# $Id: vzpkgadd,v 1.1 2005/06/08 09:21:52 kir Exp $
+# $Id: vzpkgadd,v 1.2 2005/06/15 10:27:57 kir Exp $
+#
+# Simple wrapper for vzrpm -U
+
+# Handle options
+case $1 in
+	-f|--force)
+		OPTS="--force --nodeps"
+		shift
+		;;
+esac
 
 VPSID=$1
 shift
-exec /usr/bin/vzrpm $VPSID -U $*
+exec /usr/bin/vzrpm $VPSID $OPTS -U $*
