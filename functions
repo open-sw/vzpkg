@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.3 2005/06/20 22:58:30 kir Exp $
+# $Id: functions,v 1.4 2005/06/20 23:06:08 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft.
 # By Kir Kolyshkin.
@@ -464,17 +464,18 @@ function yum_conf()
 # Environment: OSTEMPLATE, TEMPLATE, VE_ROOT should be set.
 function import_gpgkeys()
 {
-        test -z "$OSTEMPLATE" && abort "import_gpgkeys(): OSTEMPLATE not set"
-        test -z "$TEMPLATE" && abort "import_gpgkeys(): TEMPLATE not set"
-        test -z "$VE_ROOT" && abort "import_gpgkeys(): VE_ROOT not set"
-        local basedir=`name2basedir $OSTEMPLATE`
-        local keydir=$TEMPLATE/$basedir/config/gpgkeys
-        test -d $keydir || return
-        local file, files
-        for file in $keydir/*; do
+	test -z "$OSTEMPLATE" && abort "import_gpgkeys(): OSTEMPLATE not set"
+	test -z "$TEMPLATE" && abort "import_gpgkeys(): TEMPLATE not set"
+	test -z "$VE_ROOT" && abort "import_gpgkeys(): VE_ROOT not set"
+	local basedir=`name2basedir $OSTEMPLATE`
+	local keydir=$TEMPLATE/$basedir/config/gpgkeys
+	test -d $keydir || return
+	local file
+	local files=''
+	for file in $keydir/*; do
 		files="$files $file"
-        done
-	test -z "$files" || rpm --root $VE_ROOT --import "$files"
+	done
+	test -z "$files" || rpm --root $VE_ROOT --import $files
 }
 
 
