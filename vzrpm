@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzrpm,v 1.1 2005/06/08 09:21:52 kir Exp $
+# $Id: vzrpm,v 1.2 2005/06/21 09:01:00 kir Exp $
 #
 # vzrpm - a wrapper for rpm to use rpm for Open Virtuozzo VPS.
 #
@@ -33,6 +33,6 @@ STATUS=`$VZCTL status $VEID` || abort "Can't get status for VPS $VEID: " \
 echo $STATUS | grep -qw "exist" || abort "VPS $VEID not exist!"
 echo $STATUS | grep -qw "running" || abort "VPS $VEID not running; " \
 	"you should start it first"
-RPM_ARGS="--installroot $VE_ROOT"
+RPM_ARGS="--root $VE_ROOT"
 log3 exec rpm $RPM_ARGS $*
 exec rpm $RPM_ARGS $*

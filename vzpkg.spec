@@ -1,6 +1,6 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	0.4
+Release:	0.5
 Summary:	Open Virtuozzo template management tools
 Source:		%{name}.tar.bz2
 License:	QPL
@@ -50,6 +50,9 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jun 20 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.5
+- fixed vzrpm (use --root not --installroot for rpm)
+
 * Tue Jun 20 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.4
 - added -f|--force option to vzpkgadd/vzpkgrm
 - added ability to install gpgkeys from config/gpgkeys if available, as yum currently can not handle
