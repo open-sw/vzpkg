@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.4 2005/06/20 22:58:30 kir Exp $
+# $Id: cache-os,v 1.5 2005/06/21 14:27:07 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005 by SWsoft.
 #
@@ -194,9 +194,6 @@ tar --numeric-owner -zcf $CACHE . --exclude $CACHE
 #ls -lh
 test -f $CACHEDIR/$CACHE && mv $CACHEDIR/$CACHE $CACHEDIR/$CACHE-old
 mv $CACHE $CACHEDIR
-# For older vzctl which expect tarballs in $TEMPLATE, not $TEMPLATE/cache
-rm -f $TEMPLATE/$CACHE
-ln -sf cache/$CACHE $TEMPLATE/$CACHE
 
 CACHESIZE=`ls -lh $CACHEDIR/$CACHE | awk '{print $5}'`
 

@@ -1,6 +1,6 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	0.5
+Release:	0.6
 Summary:	Open Virtuozzo template management tools
 Source:		%{name}.tar.bz2
 License:	QPL
@@ -10,7 +10,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildArch:	noarch
 
 Requires:	sed, gawk, coreutils
-Requires:	vzctl >= 2.7.0-2
+Requires:	vzctl >= 2.7.0-6
 # yum<2.2.1 has a bug preventing gpgkeys installation to --installroot.
 Requires:	yum >= 2.2.1
 
@@ -50,6 +50,10 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jun 20 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.6
+- removed workaround for old vzctl which expect cache tarball in /vz/template
+- require newer vzctl which gets cache from /vz/template/cache
+
 * Tue Jun 20 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.5
 - fixed vzrpm (use --root not --installroot for rpm)
 
