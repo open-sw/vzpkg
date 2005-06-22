@@ -37,6 +37,7 @@ make DESTDIR=%buildroot install
 %attr(755,root,root) %_bindir/vzrpm
 %attr(755,root,root) %_bindir/vzpkgadd
 %attr(755,root,root) %_bindir/vzpkgrm
+%attr(755,root,root) %_bindir/vzpkgls
 %dir %libdir
 %attr(644,root,root) %libdir/functions
 %attr(755,root,root) %libdir/cache-os
@@ -50,7 +51,7 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Wed Jun 20 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.7
+* Wed Jun 22 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.7
 - added vzpkgls utility
 
 * Tue Jun 21 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.6
