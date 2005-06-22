@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.4 2005/06/20 23:06:08 kir Exp $
+# $Id: functions,v 1.5 2005/06/22 09:39:26 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft.
 # By Kir Kolyshkin.
@@ -525,7 +525,8 @@ function get_all_os_templates() {
 	# Here we need it to be ended by slash
 	echo $tdir | egrep -q '/$' || tdir="${tdir}/"
 
-	local list=`find $tdir -name ostemplate.list -type f | \
+	local list=`find $tdir -name ostemplate.list \
+	          -maxdepth 4 -mindepth 4 -type f | \
 		sed -e "s@^${tdir}@@"  | \
 		fgrep '/config/ostemplate.list' | \
 		sed -e "s@/config/ostemplate.list@@" | \
