@@ -1,0 +1,74 @@
+#!/bin/bash
+# $Id: vzpkgls,v 1.1 2005/06/22 09:40:08 kir Exp $
+#
+# Utility to list either OS templates available on an Open Virtuozzo node,
+# or an OS template installed into a given VPS. See usage() for info.
+#
+# Copyright (C) 2005, SWsoft. Licensed under QPL.
+# By Kir Kolyshkin.
+
+
+TOOLDIR=/usr/share/vzpkg
+#DEBUG_LEVEL=4
+
+. ${TOOLDIR}/functions
+
+function usage() {
+	cat << _EOF_
+Usage: $PROGNAME [-c|-h]
+       $PROGNAME <vpsid>
+_EOF_
+}
+
+function list_ve() {
+	# List VPS OS template
+	STATUS=`$VZCTL status $VEID` || \
+		abort "Can't get status for VPS $VEID: " \
+			"vzctl status failed with code $?"
+	echo $STATUS | grep -qw "exist" || abort "VPS $VEID not exist!"
+	get_ve_os_template
+	echo $OSTEMPLATE
+}
+
+# Is VPSID supplied?
+if echo $1 | egrep -q '^[1-9][0-9]*$'; then
+	VEID=$1
+	list_ve
+	exit 0
+fi
+
+if ! test -z $1; then
+	case $1 in
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-c|--cached)
+			CHECK_CACHE=1
+			;;
+		*)
+			echo "Invalid arguments: $*" 1>&2
+			usage
+			exit 1
+			;;
+	esac
+fi
+
+
+# List all OS templates installed
+ALLTEMPLATES=`get_all_os_templates`
+if test "x$CHECK_CACHE" != "x"; then
+	# Check if these templates has a cache
+	TEMPLATE=`get_vz_var TEMPLATE`
+	CACHEDIR=`get_cache_dir`
+	for T in $ALLTEMPLATES; do
+		CACHE=$T.tar.gz
+		if test -f $CACHEDIR/$CACHE; then
+			TEMPLATES="$TEMPLATES $T"
+		fi
+	done
+else
+	TEMPLATES=$ALLTEMPLATES
+fi
+# Print all OS template names, one per line
+echo $TEMPLATES | sed 's/[[:space:]]/\n/g'
