@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzpkgls,v 1.1 2005/06/22 09:40:08 kir Exp $
+# $Id: vzpkgls,v 1.2 2005/06/22 12:25:32 kir Exp $
 #
 # Utility to list either OS templates available on an Open Virtuozzo node,
 # or an OS template installed into a given VPS. See usage() for info.
@@ -15,8 +15,9 @@ TOOLDIR=/usr/share/vzpkg
 
 function usage() {
 	cat << _EOF_
-Usage: $PROGNAME [-c|-h]
+Usage: $PROGNAME [-c|--cached]
        $PROGNAME <vpsid>
+       $PROGNAME -h|--help
 _EOF_
 }
 
@@ -37,7 +38,7 @@ if echo $1 | egrep -q '^[1-9][0-9]*$'; then
 	exit 0
 fi
 
-if ! test -z $1; then
+while ! test -z $1; do
 	case $1 in
 		-h|--help)
 			usage
@@ -46,13 +47,21 @@ if ! test -z $1; then
 		-c|--cached)
 			CHECK_CACHE=1
 			;;
+		-q|--quiet)
+			QUIET=1
+			# This setting is currently makes no effect
+			;;
+		-o|--order)
+			# For compatibility; just ignore
+			;;
 		*)
 			echo "Invalid arguments: $*" 1>&2
 			usage
 			exit 1
 			;;
 	esac
-fi
+	shift
+done
 
 
 # List all OS templates installed

@@ -1,6 +1,6 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	0.7
+Release:	0.8
 Summary:	Open Virtuozzo template management tools
 Source:		%{name}.tar.bz2
 License:	QPL
@@ -51,6 +51,9 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jun 22 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.8
+- added -q, -o options to vzpkgls (for compatibility only)
+
 * Wed Jun 22 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.7
 - added vzpkgls utility
 
