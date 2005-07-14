@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.5 2005/06/22 09:39:26 kir Exp $
+# $Id: functions,v 1.6 2005/07/14 10:20:21 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft.
 # By Kir Kolyshkin.
@@ -377,7 +377,7 @@ function get_all_basedirs()
 	if test -z "$packages"; then
 		packages=`get_vz_var PACKAGES`
 	fi
-	local basedirs=`find $packages -type d -maxdepth 2 -mindepth 2 \
+	local basedirs=`find $packages -maxdepth 2 -mindepth 2 -type d \
 		-print | sed "s@^$packages[/]*@@"`
 	echo $basedirs
 }
@@ -393,7 +393,7 @@ function get_all_ostemplates()
 	if test -z "$packages"; then
 		packages=`get_vz_var PACKAGES`
 	fi
-	local pdirs=`find $packages -type d -maxdepth 2 -mindepth 2 -print`
+	local pdirs=`find $packages -maxdepth 2 -mindepth 2 -type d -print`
 	for pdir in $pdirs; do
 		tdir=`echo $pdir | sed -e "s@^$packages@$template@"`
 		if test -f $tdir/config/ostemplate.conf; then
@@ -525,8 +525,8 @@ function get_all_os_templates() {
 	# Here we need it to be ended by slash
 	echo $tdir | egrep -q '/$' || tdir="${tdir}/"
 
-	local list=`find $tdir -name ostemplate.list \
-	          -maxdepth 4 -mindepth 4 -type f | \
+	local list=`find $tdir -maxdepth 4 -mindepth 4 -type f \
+		-name ostemplate.list | \
 		sed -e "s@^${tdir}@@"  | \
 		fgrep '/config/ostemplate.list' | \
 		sed -e "s@/config/ostemplate.list@@" | \
