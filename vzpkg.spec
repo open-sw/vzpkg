@@ -1,8 +1,8 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	0.8
+Release:	0.9
 Summary:	Open Virtuozzo template management tools
-Source:		%{name}.tar.bz2
+Source:		%{name}-%{version}.tar.bz2
 License:	QPL
 Vendor:		SWsoft
 Group:		Applications/System
@@ -22,7 +22,7 @@ inside Virtual Private Servers.
 
 
 %prep
-%setup -n %{name} -q
+%setup 
 
 %build
 make
@@ -51,6 +51,10 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jul 14 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.9
+- fixed order of 'find' arguments to avoid warnings
+- added 'dist' and 'rpm' targets to Makefile
+
 * Wed Jun 22 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.8
 - added -q, -o options to vzpkgls (for compatibility only)
 
