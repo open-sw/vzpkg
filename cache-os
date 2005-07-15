@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.5 2005/06/21 14:27:07 kir Exp $
+# $Id: cache-os,v 1.6 2005/07/15 09:16:56 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005 by SWsoft.
 #
@@ -189,7 +189,7 @@ log4 vzctl exit code $?
 pushd $VE_PRIVATE > /dev/null
 log3 "Packing cache file $CACHE ... "
 mkdir -p $CACHEDIR
-tar --numeric-owner -zcf $CACHE . --exclude $CACHE
+tar --numeric-owner --exclude $CACHE -zcf $CACHE . || abort "tar failed"
 #pwd
 #ls -lh
 test -f $CACHEDIR/$CACHE && mv $CACHEDIR/$CACHE $CACHEDIR/$CACHE-old

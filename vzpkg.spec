@@ -1,6 +1,6 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	0.9
+Release:	0.10
 Summary:	Open Virtuozzo template management tools
 Source:		%{name}-%{version}.tar.bz2
 License:	QPL
@@ -51,6 +51,10 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jul 14 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.10
+- fixed order of 'tar' arguments in cache-os to work with newer GNU tar
+- added checking of tar exit code
+
 * Thu Jul 14 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.9
 - fixed order of 'find' arguments to avoid warnings
 - added 'dist' and 'rpm' targets to Makefile
