@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.6 2005/07/14 10:20:21 kir Exp $
+# $Id: functions,v 1.7 2005/07/19 09:21:40 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft.
 # By Kir Kolyshkin.
@@ -194,7 +194,17 @@ function find_lock_nearest_veid()
 		unlock_ve $veid
 		continue
 	    }
-	    $VZCTL status $veid | grep -q 'deleted unmounted down' || {
+	    local status
+	    status=`$VZCTL status $veid`
+	    # vzctl status should always return 0; if not, something is
+	    # really wrong (e.g. /dev/vzctl is missing).
+	    if test $? -ne 0; then
+		unlock_ve $veid
+		abort "$FUNCNAME: 'vzctl status' command returned" \
+			"non-zero exit code, which should not happen." \
+			"See /var/log/vzctl.log for details"
+	    fi
+	    echo "$status" | grep -q 'deleted unmounted down' || {
 		unlock_ve $veid
 		continue
 	    }

@@ -1,6 +1,6 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	0.10
+Release:	0.11
 Summary:	Open Virtuozzo template management tools
 Source:		%{name}-%{version}.tar.bz2
 License:	QPL
@@ -51,6 +51,9 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jul 19 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.11
+- vzpkgcache properly fails now if vzctl status returns !0 (vz.org bug #11)
+
 * Thu Jul 14 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.10
 - fixed order of 'tar' arguments in cache-os to work with newer GNU tar
 - added checking of tar exit code
