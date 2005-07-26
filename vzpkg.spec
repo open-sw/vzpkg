@@ -1,8 +1,8 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	0.11
+Release:	0.12
 Summary:	Open Virtuozzo template management tools
-Source:		%{name}-%{version}.tar.bz2
+Source:		%{name}-%{version}-%{release}.tar.bz2
 License:	QPL
 Vendor:		SWsoft
 Group:		Applications/System
@@ -22,7 +22,7 @@ inside Virtual Private Servers.
 
 
 %prep
-%setup 
+%setup -n %{name}-%{version}-%{release}
 
 %build
 make
@@ -51,6 +51,9 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jul 26 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.12
+- source tarball now contains %{release}
+
 * Tue Jul 19 2005 Kir Kolyshkin <kir@sw.ru> 2.7.0-0.11
 - vzpkgcache properly fails now if vzctl status returns !0 (vz.org bug #11)
 
