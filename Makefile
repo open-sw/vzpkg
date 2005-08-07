@@ -1,10 +1,3 @@
-NAME=vzpkg
-# Do not use rpmquery here since some people may not have rpm installed.
-# Still, we want to use spec file as a primary source for version info.
-VERSION=$(shell awk '/^Version:/ {print $$2}' vzpkg.spec)
-
-DISTFILE=$(NAME)-$(VERSION).tar.bz2
-
 DESTDIR=
 BINDIR=$(DESTDIR)/usr/bin
 SBINDIR=$(DESTDIR)/usr/sbin
@@ -53,18 +46,5 @@ install-man8: $(MAN8_FILES)
 	for f in $(MAN8_FILES); do \
 		install -m 644 $$f $(MAN8DIR); \
 	done
-
-dist: $(DISTFILE)
-
-$(DISTFILE): clean
-	rm -f ../$(NAME)-$(VERSION)
-	ln -sf $(NAME) ../$(NAME)-$(VERSION)
-	tar -C .. -cvhjf $(DISTFILE) --exclude CVS \
-		$(NAME)-$(VERSION)
-	rm -f ../$(NAME)-$(VERSION)
-
-rpm: $(DISTFILE)
-	rpmbuild -ta $(DISTFILE)
-
 
 .PHONY: clean clean-distfile install dist

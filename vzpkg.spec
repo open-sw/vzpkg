@@ -54,6 +54,7 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 * Sun Aug  7 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-14
 - minor manpages fixes
 - removed 0. prefix from the release
+- support for vzpkgls -q VPS added for compatibility
 
 * Thu Jul 27 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-0.13
 - myinit is installed with mode 755 in Makefile
