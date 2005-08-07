@@ -13,7 +13,7 @@ MANDIR=$(DESTDIR)/usr/share/man
 MAN8DIR=$(MANDIR)/man8
 
 BIN_FILES = vzpkgcache vzyum vzrpm vzpkgadd vzpkgrm vzpkgls
-LIB_FILES = functions cache-os myinit
+LIB_FILES = functions cache-os
 MAN8_FILES = man/vzpkgcache.8 man/vzyum.8 man/vzrpm.8
 
 
@@ -28,7 +28,7 @@ clean: clean-distfile
 clean-distfile:
 	rm -f $(DISTFILE)
 
-install: install-bin install-lib install-man
+install: install-bin install-lib install-myinit install-man
 
 install-bin: $(BIN_FILES)
 	mkdir -p $(BINDIR)
@@ -41,6 +41,9 @@ install-lib: $(LIB_FILES)
 	for f in $(LIB_FILES); do \
 		install -m 644 $$f $(LIBDIR); \
 	done
+
+install-myinit: install-lib
+	install -m 755 myinit $(LIBDIR)
 
 install-man: install-man8
 	mkdir -p $(MANDIR)
