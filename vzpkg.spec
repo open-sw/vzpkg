@@ -59,7 +59,7 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 - myinit is installed with mode 755 in Makefile
 
 * Tue Jul 26 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-0.12
-- source tarball now contains %{release}
+- source tarball now contains {release}
 
 * Tue Jul 19 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-0.11
 - vzpkgcache properly fails now if vzctl status returns !0 (vz.org bug #11)
