@@ -1,7 +1,7 @@
 #!/bin/bash
-# $Id: functions,v 1.7 2005/07/19 09:21:40 kir Exp $
+# $Id: functions,v 1.8 2005/08/10 12:41:33 kir Exp $
 #
-# Copyright (C) 2004, 2005, SWsoft.
+# Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
 #
 # Various definitions and functions used by vzpkg tools.

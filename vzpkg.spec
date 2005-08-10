@@ -1,6 +1,6 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	14
+Release:	15
 Summary:	Open Virtuozzo template management tools
 Source:		%{name}-%{version}-%{release}.tar.bz2
 License:	QPL
@@ -45,12 +45,16 @@ make DESTDIR=%buildroot install
 %_mandir/man8/vzpkgcache.8.*
 %_mandir/man8/vzyum.8.*
 %_mandir/man8/vzrpm.8.*
+%doc LICENSE.QPL
 
 %clean
 test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Aug 10 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-15
+- copyright statement and LICENSE.QPL added
+
 * Sun Aug  7 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-14
 - minor manpages fixes
 - removed 0. prefix from the release

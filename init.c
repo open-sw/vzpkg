@@ -1,6 +1,8 @@
-/* $Id: init.c,v 1.1 2005/05/23 18:55:53 kir Exp $
+/* $Id: init.c,v 1.2 2005/08/10 12:41:33 kir Exp $
  * Init -- very simple init stub
  * Shamelessly borrowed from old vzpkgtools.
+ *
+ * Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
  */
 
 #include <sys/types.h>
