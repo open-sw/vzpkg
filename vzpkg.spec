@@ -1,6 +1,6 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	15
+Release:	16
 Summary:	Open Virtuozzo template management tools
 Source:		%{name}-%{version}-%{release}.tar.bz2
 License:	QPL
@@ -52,6 +52,11 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Aug 15 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-16
+- fixed cleanup of temporary VPS in vzpkgcache (bug #19)
+- no need to repack cache tarball if no updates are available (bug #13)
+- fixed program name logging to /var/log/vzpkg.log
+
 * Wed Aug 10 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-15
 - copyright statement and LICENSE.QPL added
 
