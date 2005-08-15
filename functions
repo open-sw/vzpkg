@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.8 2005/08/10 12:41:33 kir Exp $
+# $Id: functions,v 1.9 2005/08/15 10:08:57 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
@@ -148,7 +148,6 @@ function unlock_ve()
 {
     local file=$VZLOCKDIR/$1.lck
 #    log4 Unlocking VE $1
-    rm -f $DEPSFILE 
     rm -f $file
 }
 
