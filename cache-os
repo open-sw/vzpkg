@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.7 2005/08/10 12:41:33 kir Exp $
+# $Id: cache-os,v 1.8 2005/08/15 11:34:32 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005 by SWsoft. Licensed under QPL.
 #
@@ -22,27 +22,23 @@ function usage()
 	exit 0
 }
 
-# Kills/umounts/destroys VE.
+# Kills/umounts/destroys VPS.
 # Parameters:
-#  $1 - VE ID
+#  $1 - VPS ID
 function cleanup()
 {
-	local veid=$1
-	log4 "Called cleanup($veid)"
-	log4 "Calling vzctl stop $veid"
-	$VZCTL stop $veid --fast
-	log4 "Calling vzctl umount $veid"
-	$VZCTL umount $veid
-	log4 "Calling vzctl destroy $veid"
-	$VZCTL destroy $veid
-	log4 "Calling rm -f $VECFGDIR/$veid.*"
-	rm -f $VECFGDIR/$veid.*
-	unlock_ve $veid
-	exit 1
+	local vps=$1
+	log4 "Called cleanup($vps)"
+	log4 "Calling vzctl stop $vps"
+	$VZCTL stop $vps --fast
+	log4 "Calling vzctl umount $vps"
+	$VZCTL umount $vps
+	log4 "Calling vzctl destroy $vps"
+	$VZCTL destroy $vps
+	log4 "Calling rm -f $VECFGDIR/$vps.*"
+	rm -f $VECFGDIR/$vps.*
+	unlock_ve $vps
 }
-
-
-
 
 if test $# -lt 1; then
 	log2 "Wrong number of parameters specified"
@@ -67,7 +63,6 @@ esac
 
 OSTEMPLATE=$1
 check_ost_exist $OSTEMPLATE
-CORE=$OSTEMPLATE-vps-template
 CACHE=$OSTEMPLATE.tar.gz
 TEMPLATE=`get_vz_var TEMPLATE`
 CACHEDIR=`get_cache_dir`
@@ -83,14 +78,8 @@ if test "x$REMOVE" != "x"; then
 	exit 0
 fi
 
-VEID=`find_lock_nearest_veid 10000` || abort "Can't find free VEID"
-function terminate()
-{
-	log3 "\nTerminating..."
-	cleanup $VEID
-}
-trap terminate 15
-log4 "Using temporary VEID $VEID"
+VEID=`find_lock_nearest_veid 10000` || abort "Can't find free VPS ID"
+log4 "Using temporary VPS $VEID"
 VE_PRIVATE=`get_vz_var VE_PRIVATE`
 VE_ROOT=`get_vz_var VE_ROOT`
 
@@ -100,18 +89,22 @@ log5 BASEDIR=$BASEDIR
 THISTEMPLATE=$TEMPLATE/$BASEDIR
 VECFG=$VECFGDIR/$VEID.conf
 VECFGSAMPLE=$VECFGDIR/ve-vps.basic.conf-sample
-# simple init - for initial VE startup, statically linked
+# simple init - for initial VPS startup, statically linked
 MYINIT=${TOOLDIR}/myinit
 
+function terminate()
+{
+	log4 "\ncalling cleanup()"
+	cleanup $VEID
+}
+trap terminate EXIT
 
 set -u
-cp -f $VECFGSAMPLE $VECFG
+cp -f $VECFGSAMPLE $VECFG || abort "Can't copy VPS config"
 echo "DISK_QUOTA=no" >> $VECFG
-mkdir -p $VE_ROOT $VE_PRIVATE
-log4 Mounting VE private area
-$VZCTL mount $VEID
-# FIXME: why not use vzctl mount???
-#mount -n -o bind $VE_PRIVATE $VE_ROOT
+mkdir -p $VE_ROOT $VE_PRIVATE || abort "Can't create VPS dirs"
+log4 Mounting VPS private area
+$VZCTL mount $VEID || abort "Can't mount VPS $VEID"
 
 test -f $CACHEDIR/$CACHE && log4 "File $CACHEDIR/$CACHE exists"
 
@@ -122,30 +115,41 @@ if test -f $CACHEDIR/$CACHE -a "x$FORCE" = "x"; then
 	log4 "Untarring $CACHEDIR/$CACHE"
 	export VE_PRVT=$VE_PRIVATE
 	export PRIVATE_TEMPLATE=$CACHEDIR/$CACHE
-	$VECFGDIR/vps-create
-	RET=$?
-	test $RET -eq 0 || abort "Failed to create VE based on cache $CACHE"
+	$VECFGDIR/vps-create || \
+		abort "Failed to create a VPS based on cache $CACHE"
+	# Check if updates are available
+	yum --installroot $VE_ROOT `yum_conf` check-update
+	YUMEC=$?
+	if test $YUMEC -eq 0; then
+		log3 "No updates are available"
+		exit 0
+	elif test $YUMEC -eq 100; then
+		log3 "Updates are available - proceeding with update"
+	else
+		abort "Command yum check-update failed with $YUMEC exit code"
+	fi
 else
 	log3 "Creating cache for $OSTEMPLATE OS template"
 	OPERATION="install"
-	# Fake init placed in order for VE to be able to start
-	mkdir $VE_ROOT/sbin
+	# Fake init placed in order for VPS to be able to start
+	mkdir $VE_ROOT/sbin || abort "Can't create dir $VE_ROOT/sbin"
 	cp -f $MYINIT $VE_ROOT/sbin/init || \
 		abort "Unable to copy $MYINIT to VPS root ($VE_ROOT)"
-	# initial VE lacks mount executable -
-	# mount /proc using VE0 mount
-	log4 Mounting proc filesystem to VE
-	mkdir $VE_ROOT/proc
-	mount -n -t proc proc $VE_ROOT/proc
+	# initial VPS lacks mount executable -
+	# mount /proc using host system mount
+	log4 Mounting proc filesystem to VPS
+	mkdir $VE_ROOT/proc || abort "Can't create dir $VE_ROOT/proc"
+	mount -n -t proc proc $VE_ROOT/proc || \
+		abort "Can't mount proc fs to $VE_ROOT/proc"
 fi
 
 
 # Run setup-pre script
 call_template_script $OPERATION-pre
 
-# Start VE now
-log4 Starting VE
-$VZCTL start $VEID || cleanup $VEID
+# Start VPS now
+log4 Starting VPS
+$VZCTL start $VEID || abort "Can't start VPS $VEID"
 
 
 # install packages
@@ -161,27 +165,22 @@ else
 	abort "Internal error: unknown OPERATION $OPERATION"
 fi
 
-# FIXME: ugly hack to not letting yum look into /etc/yum.repos.d/
-#DISABLE_REPOS=`cat /etc/yum.repos.d/* /etc/yum.conf | egrep '^\[.*\]$' | \
-#	sed  's/^\[\(.*\)\]$/--disablerepo="\1"/'`
 
 log4 "Running yum `yum_conf` " \
 	"$YUM_CMD"
 # -d $DEBUG_LEVEL
-yum -y --installroot $VE_ROOT `yum_conf` $YUM_CMD
-YUMEC=$?
-log4 Yum exited with code $YUMEC
-test $YUMEC -eq 0 || cleanup $VEID
+yum -y --installroot $VE_ROOT `yum_conf` $YUM_CMD || \
+	abort "Yum failed with $? exit code"
 
 call_template_script $OPERATION-post
 
-# Stop this VE
-log4 Stopping VE
+# Stop this VPS
+log4 Stopping VPS
 $VZCTL stop $VEID --fast
 log4 vzctl exit code $?
 
-# Umount VE
-log4 Unmounting VE
+# Umount VPS
+log4 Unmounting VPS
 $VZCTL umount $VEID
 log4 vzctl exit code $?
 
@@ -200,7 +199,7 @@ CACHESIZE=`ls -lh $CACHEDIR/$CACHE | awk '{print $5}'`
 log3 "Cache file $CACHE [$CACHESIZE] created."
 popd > /dev/null
 
-log4 Destroying VE
+log4 Destroying VPS
 $VZCTL destroy $VEID
 log4 vzctl exit code $?
 log4 rm -f $VECFGDIR/$VEID.*
