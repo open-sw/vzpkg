@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.9 2005/08/15 10:08:57 kir Exp $
+# $Id: functions,v 1.10 2005/08/15 11:14:32 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
@@ -48,7 +48,7 @@ function log()
 	if ! test -z "$VZP_LOGFILE"; then
 		local date=`LANG=C date "+%b %d %H:%M:%S"`
 		local logmsg="$date [$PROGNAME] $msg"
-		echo -e $logmsg >> $VZP_LOGFILE
+		echo -e "$logmsg" >> $VZP_LOGFILE
 	fi
 }
 
@@ -551,6 +551,6 @@ function check_ost_exist() {
 	local template=`get_vz_var TEMPLATE`
 	local thistemplate="$template/`name2basedir $1`"
 	local configdir=$thistemplate/config/
-	local pkglist=$configdir/ostemplate.list
+	local pkglist=${configdir}ostemplate.list
 	test -f $pkglist || abort "OS template $1 does not exist!"
 }
