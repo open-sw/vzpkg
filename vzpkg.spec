@@ -45,7 +45,7 @@ make DESTDIR=%buildroot install
 %_mandir/man8/vzpkgcache.8.*
 %_mandir/man8/vzyum.8.*
 %_mandir/man8/vzrpm.8.*
-%doc LICENSE.QPL
+%doc README NEWS TODO LICENSE.QPL
 
 %clean
 test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
@@ -56,6 +56,7 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 - fixed cleanup of temporary VPS in vzpkgcache (bug #19)
 - no need to repack cache tarball if no updates are available (bug #13)
 - fixed program name logging to /var/log/vzpkg.log
+- added README, NEWS, TODO (bug #14)
 
 * Wed Aug 10 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-15
 - copyright statement and LICENSE.QPL added

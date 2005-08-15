@@ -1,0 +1,28 @@
+vzpkg - Open Virtuozzo VPS template management tools
+====================================================
+
+	This is a collection of scripts aimed at VPS template management.
+	It mostly deals with creation of OS template caches. Also included
+	are two handy utilities - vzyum and vzrpm.
+
+
+Requirements
+------------
+	yum >= 2.2.1 (for FC3 it is available in updates).
+
+
+Installation
+------------
+	make install
+
+
+Usage
+-----
+	See man pages, info at http://openvirtuozzo.org/ and a chapter
+	named "Managing templates" in Open Virtuozzo Users' Guide.
+
+
+Copyright
+---------
+	Copyright (C) 2003-2005 by SWsoft. All rights reserved.
+	For the licensing terms, see LICENSE.QPL file.
