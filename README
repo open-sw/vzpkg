@@ -1,4 +1,4 @@
-vzpkg - Open Virtuozzo VPS template management tools
+vzpkg - OpenVZ VPS template management tools
 ====================================================
 
 	This is a collection of scripts aimed at VPS template management.
@@ -18,8 +18,8 @@ Installation
 
 Usage
 -----
-	See man pages, info at http://openvirtuozzo.org/ and a chapter
-	named "Managing templates" in Open Virtuozzo Users' Guide.
+	See man pages, info at http://openvz.org/ and a chapter
+	named "Managing templates" in OpenVZ User's Guide.
 
 
 Copyright

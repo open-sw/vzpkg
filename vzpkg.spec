@@ -1,7 +1,7 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	16
-Summary:	Open Virtuozzo template management tools
+Release:	17
+Summary:	OpenVZ template management tools
 Source:		%{name}-%{version}-%{release}.tar.bz2
 License:	QPL
 Vendor:		SWsoft
@@ -10,14 +10,14 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildArch:	noarch
 
 Requires:	sed, gawk, coreutils
-Requires:	vzctl >= 2.7.0-6
+Requires:	vzctl >= 2.7.0-21
 # yum<2.2.1 has a bug preventing gpgkeys installation to --installroot.
 Requires:	yum >= 2.2.1
 
 %define libdir %_datadir/%name
 
 %description
-Open Virtuozzo template management tools are used for software installation
+OpenVZ template management tools are used for software installation
 inside Virtual Private Servers.
 
 
@@ -52,6 +52,10 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Sep 16 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-17
+- fixed vzpkgcache broken by vzctl-2.7.0-21
+- project name changed
+
 * Mon Aug 15 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-16
 - fixed cleanup of temporary VPS in vzpkgcache (bug #19)
 - no need to repack cache tarball if no updates are available (bug #13)

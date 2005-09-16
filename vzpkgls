@@ -1,7 +1,7 @@
 #!/bin/bash
-# $Id: vzpkgls,v 1.3 2005/08/07 14:20:23 kir Exp $
+# $Id: vzpkgls,v 1.4 2005/09/16 13:04:53 kir Exp $
 #
-# Utility to list either OS templates available on an Open Virtuozzo node,
+# Utility to list either OS templates available on an OpenVZ node,
 # or an OS template installed into a given VPS. See usage() for info.
 #
 # Copyright (C) 2005, SWsoft. Licensed under QPL.

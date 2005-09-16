@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.8 2005/08/15 11:34:32 kir Exp $
+# $Id: cache-os,v 1.9 2005/09/16 13:04:53 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005 by SWsoft. Licensed under QPL.
 #
@@ -115,7 +115,7 @@ if test -f $CACHEDIR/$CACHE -a "x$FORCE" = "x"; then
 	log4 "Untarring $CACHEDIR/$CACHE"
 	export VE_PRVT=$VE_PRIVATE
 	export PRIVATE_TEMPLATE=$CACHEDIR/$CACHE
-	$VECFGDIR/vps-create || \
+	$VZLIB_SCRIPTDIR/vps-create || \
 		abort "Failed to create a VPS based on cache $CACHE"
 	# Check if updates are available
 	yum --installroot $VE_ROOT `yum_conf` check-update

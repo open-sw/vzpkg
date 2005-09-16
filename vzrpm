@@ -1,7 +1,7 @@
 #!/bin/bash
-# $Id: vzrpm,v 1.3 2005/08/10 12:41:33 kir Exp $
+# $Id: vzrpm,v 1.4 2005/09/16 13:04:53 kir Exp $
 #
-# vzrpm - a wrapper for rpm to use rpm for Open Virtuozzo VPS.
+# vzrpm - a wrapper for rpm to use rpm for OpenVZ VPS.
 #
 # Copyright (C) 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.

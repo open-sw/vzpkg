@@ -1,7 +1,7 @@
 #!/bin/bash
-# $Id: vzyum,v 1.4 2005/08/10 12:41:33 kir Exp $
+# $Id: vzyum,v 1.5 2005/09/16 13:04:53 kir Exp $
 #
-# vzyum - a wrapper for yum to use yum for Open Virtuozzo VPS.
+# vzyum - a wrapper for yum to use yum for OpenVZ VPS.
 #
 # Copyright (C) 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
