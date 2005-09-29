@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzyum,v 1.5 2005/09/16 13:04:53 kir Exp $
+# $Id: vzyum,v 1.6 2005/09/29 14:32:29 kir Exp $
 #
 # vzyum - a wrapper for yum to use yum for OpenVZ VPS.
 #
@@ -7,6 +7,7 @@
 # By Kir Kolyshkin.
 
 TOOLDIR=/usr/share/vzpkg
+#DEBUG_LEVEL=4
 
 . ${TOOLDIR}/functions
 
@@ -35,7 +36,11 @@ echo $STATUS | grep -qw "running" || abort "VPS $VEID not running; " \
 	"you should start it first"
 get_ve_os_template $VEID || abort "Can't get OSTEMPLATE for VPS $VEID"
 TEMPLATE=`get_vz_var TEMPLATE`
+THISTEMPLATE=$TEMPLATE/`name2basedir $OSTEMPLATE`
 YUM_ARGS=`yum_conf`
-YUM_ARGS="$YUM_ARGS --installroot $VE_ROOT"
-log3 exec yum $YUM_ARGS $*
-exec yum $YUM_ARGS $*
+YUM_ARGS="$YUM_ARGS --installroot $VE_ROOT --vps=$VEID"
+PYTHONPATH=`get_rpm_pythonhome`
+export PYTHONPATH
+log4 PYTHONPATH=$PYTHONPATH
+log3 exec $YUM $YUM_ARGS $*
+exec $YUM $YUM_ARGS $*

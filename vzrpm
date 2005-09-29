@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzrpm,v 1.4 2005/09/16 13:04:53 kir Exp $
+# $Id: vzrpm,v 1.5 2005/09/29 14:32:29 kir Exp $
 #
 # vzrpm - a wrapper for rpm to use rpm for OpenVZ VPS.
 #
@@ -7,6 +7,7 @@
 # By Kir Kolyshkin.
 
 TOOLDIR=/usr/share/vzpkg
+#DEBUG_LEVEL=4
 
 . ${TOOLDIR}/functions
 
@@ -33,6 +34,12 @@ STATUS=`$VZCTL status $VEID` || abort "Can't get status for VPS $VEID: " \
 echo $STATUS | grep -qw "exist" || abort "VPS $VEID not exist!"
 echo $STATUS | grep -qw "running" || abort "VPS $VEID not running; " \
 	"you should start it first"
-RPM_ARGS="--root $VE_ROOT"
-log3 exec rpm $RPM_ARGS $*
-exec rpm $RPM_ARGS $*
+RPM_ARGS="--root $VE_ROOT --veid $VEID"
+# Find out which RPM binary to use
+get_ve_os_template $VEID || abort "Can't get OSTEMPLATE for VPS $VEID"
+TEMPLATE=`get_vz_var TEMPLATE`
+THISTEMPLATE=$TEMPLATE/`name2basedir $OSTEMPLATE`
+RPM=`get_rpm`
+# Run it
+log3 exec $RPM $RPM_ARGS $*
+exec $RPM $RPM_ARGS $*
