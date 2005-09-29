@@ -1,9 +1,12 @@
-/* $Id: init.c,v 1.2 2005/08/10 12:41:33 kir Exp $
+/* $Id: init.c,v 1.3 2005/09/29 13:43:32 kir Exp $
  * Init -- very simple init stub
  * Shamelessly borrowed from old vzpkgtools.
  *
  * Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
  */
+
+/* define this to make our init mount proc fs at startup */
+#define MOUNT_PROC 1
 
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -12,6 +15,16 @@
 #include <errno.h>
 #include <stdio.h>
 #include <signal.h>
+
+#ifdef MOUNT_PROC
+#include <sys/mount.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+/* Taken from /usr/src/linux/include/fs.h */
+#define MS_POSIXACL	(1<<16) /* VFS does not apply the umask */
+#define MS_ACTIVE	(1<<30)
+#define MS_NOUSER	(1<<31)
+#endif
 
 /* Set a signal handler */
 static void setsig(struct sigaction *sa, int sig, 
@@ -53,6 +66,12 @@ int main(int argc, char * argv[])
 		fprintf(stderr, "%s: must be a process with PID=1\n", argv[0]);
 		exit(1);
 	}
+
+#ifdef MOUNT_PROC
+	mkdir("/proc", 0555);
+	mount("proc", "/proc", "proc",
+		MS_POSIXACL|MS_ACTIVE|MS_NOUSER|0xec0000, 0);
+#endif
 
 	/* Ignore all signals */
 	for(i = 1; i <= NSIG; i++)

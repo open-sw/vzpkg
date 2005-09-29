@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.9 2005/09/16 13:04:53 kir Exp $
+# $Id: cache-os,v 1.10 2005/09/29 13:43:32 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005 by SWsoft. Licensed under QPL.
 #
@@ -135,12 +135,7 @@ else
 	mkdir $VE_ROOT/sbin || abort "Can't create dir $VE_ROOT/sbin"
 	cp -f $MYINIT $VE_ROOT/sbin/init || \
 		abort "Unable to copy $MYINIT to VPS root ($VE_ROOT)"
-	# initial VPS lacks mount executable -
-	# mount /proc using host system mount
-	log4 Mounting proc filesystem to VPS
 	mkdir $VE_ROOT/proc || abort "Can't create dir $VE_ROOT/proc"
-	mount -n -t proc proc $VE_ROOT/proc || \
-		abort "Can't mount proc fs to $VE_ROOT/proc"
 fi
 
 
