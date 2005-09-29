@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.13 2005/09/29 14:33:33 kir Exp $
+# $Id: functions,v 1.14 2005/09/29 15:12:40 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
@@ -536,16 +536,22 @@ function get_rpm_path()
 	local rpmf=$cfgdir/rpm
 	test -f $rpmf || abort "File $rpmf not found!"
 	local rpmver=`cat $rpmf`
-	echo /usr/share/vzpkgtools/vzrpm$rpmver
+	local path=/usr/share/vzpkgtools/vzrpm${rpmver}
+	test -d $path || abort "vzrpm${rpmver} path not found: $path"
+	echo $path
 }
 
 function get_rpm()
 {
-	echo `get_rpm_path`/bin/rpm
+	local rpm=`get_rpm_path`/bin/rpm
+	test -x $rpm || abort "RPM not found or non-executable: $rpm"
+	echo $rpm
 }
 
 function get_rpm_pythonhome()
 {
 	local pyver=`get_pythonver`
-	echo `get_rpm_path`/lib/python${pyver}/site-packages
+	local path=`get_rpm_path`/lib/python${pyver}/site-packages
+	test -d $path || abort "RPM python path not found: $path"
+	exit $path
 }
