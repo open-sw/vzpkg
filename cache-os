@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.10 2005/09/29 13:43:32 kir Exp $
+# $Id: cache-os,v 1.11 2005/09/29 14:34:27 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005 by SWsoft. Licensed under QPL.
 #
@@ -102,11 +102,17 @@ trap terminate EXIT
 set -u
 cp -f $VECFGSAMPLE $VECFG || abort "Can't copy VPS config"
 echo "DISK_QUOTA=no" >> $VECFG
+echo "OSTEMPLATE=$OSTEMPLATE" >> $VECFG
 mkdir -p $VE_ROOT $VE_PRIVATE || abort "Can't create VPS dirs"
 log4 Mounting VPS private area
 $VZCTL mount $VEID || abort "Can't mount VPS $VEID"
 
 test -f $CACHEDIR/$CACHE && log4 "File $CACHEDIR/$CACHE exists"
+
+# Set up PYTHONPATH for our vzyum
+PYTHONPATH=`get_rpm_pythonhome`
+export PYTHONPATH
+log4 PYTHONPATH=$PYTHONPATH
 
 # Check if we are going to update cache
 if test -f $CACHEDIR/$CACHE -a "x$FORCE" = "x"; then
@@ -118,7 +124,8 @@ if test -f $CACHEDIR/$CACHE -a "x$FORCE" = "x"; then
 	$VZLIB_SCRIPTDIR/vps-create || \
 		abort "Failed to create a VPS based on cache $CACHE"
 	# Check if updates are available
-	yum --installroot $VE_ROOT `yum_conf` check-update
+	# We use $YUM not vzyum here as latter requires VPS to be running
+	$YUM --installroot $VE_ROOT `yum_conf` --vps=$VEID check-update
 	YUMEC=$?
 	if test $YUMEC -eq 0; then
 		log3 "No updates are available"
@@ -160,12 +167,20 @@ else
 	abort "Internal error: unknown OPERATION $OPERATION"
 fi
 
+# Dirty dirty hack for yum/rpm to read RPM macros from the file .rpmmacros
+# which resides in our template configuration directory. If you know a better
+# way of doing it, please enlighten me.
+XX_HOME=$HOME
+export HOME=$THISTEMPLATE/config
 
-log4 "Running yum `yum_conf` " \
-	"$YUM_CMD"
+YUM_CMD="--installroot=$VE_ROOT --vps=$VEID `yum_conf` -y $YUM_CMD"
 # -d $DEBUG_LEVEL
-yum -y --installroot $VE_ROOT `yum_conf` $YUM_CMD || \
-	abort "Yum failed with $? exit code"
+log4 "Running $YUM $YUM_CMD"
+# FIXME1: We use $YUM not vzyum because latter requires OSTEMPLATE to be set.
+# FIXME2: We do set OSTEMPLATE, so what's the problem? Need to find out.
+$YUM $YUM_CMD || abort "yum failed with $? exit code"
+export HOME=$XX_HOME
+unset XX_HOME
 
 call_template_script $OPERATION-post
 
