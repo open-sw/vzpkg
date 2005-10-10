@@ -1,7 +1,1 @@
 - add support for other distros (deb-based, gentoo)
-
-- support for different distro-dependent RPM binaries
-  (see http://bugzilla.openvz.org/27)
-
-- process everything in VPS context, not in host context
-  (requires patched rpm and yum)
