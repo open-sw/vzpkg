@@ -1,5 +1,5 @@
 vzpkg - OpenVZ VPS template management tools
-====================================================
+============================================
 
 	This is a collection of scripts aimed at VPS template management.
 	It mostly deals with creation of OS template caches. Also included
@@ -8,7 +8,9 @@ vzpkg - OpenVZ VPS template management tools
 
 Requirements
 ------------
-	yum >= 2.2.1 (for FC3 it is available in updates).
+	vzyum >= 2.4.0
+
+	Also, different OS templates requires different vzrpm versions.
 
 
 Installation
