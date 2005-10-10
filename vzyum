@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzyum,v 1.6 2005/09/29 14:32:29 kir Exp $
+# $Id: vzyum,v 1.7 2005/10/10 11:06:22 kir Exp $
 #
 # vzyum - a wrapper for yum to use yum for OpenVZ VPS.
 #
@@ -12,6 +12,8 @@ TOOLDIR=/usr/share/vzpkg
 . ${TOOLDIR}/functions
 
 log4 Started $0 $*
+
+set -e
 
 function usage() {
 	cat << USAGE_EOF 1>&2
