@@ -1,8 +1,12 @@
-/* $Id: init.c,v 1.3 2005/09/29 13:43:32 kir Exp $
+/* $Id: init.c,v 1.4 2005/10/10 13:29:24 kir Exp $
  * Init -- very simple init stub
  * Shamelessly borrowed from old vzpkgtools.
  *
  * Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
+ *
+ * Compile statically on an appropriate architecture
+ * using dietlibc:
+ * diet -Os gcc -static -s -o myinit.ARCH init.c
  */
 
 /* define this to make our init mount proc fs at startup */
@@ -86,5 +90,12 @@ int main(int argc, char * argv[])
 
 
 	for(;;)
+#if defined (__dietlibc__) && defined (__ia64__)
+/* As of dietlibc-0.29, pause() is not implemented for ia64,
+ * so use sleep() instead. --kir
+ */
+		sleep(3600);
+#else
 		pause();
+#endif
 }
