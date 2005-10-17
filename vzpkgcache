@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzpkgcache,v 1.2 2005/08/10 12:41:33 kir Exp $
+# $Id: vzpkgcache,v 1.3 2005/10/17 14:41:41 kir Exp $
 #
 # vzpkgcache - create cached tarball for OS packages.
 #
@@ -48,7 +48,12 @@ TEMPLATE=`get_vz_var TEMPLATE`
 
 if test $# -gt 0; then
 	# Have list of OS templates from cmdline
-	OST_LIST=$*
+	for T in $*; do
+		FT=`ost2full $T` || abort "OS template $T not found"
+		check_ost_exists $FT || abort "OS template $FT not found"
+		FT=${FT// /-}
+		OST_LIST="$OST_LIST $FT"
+	done
 else
 	# Sanity check -- refuse to remove all OS templates
 	if test "x$REMOVE" != "x"; then
@@ -64,11 +69,6 @@ R_EOF
 fi
 
 test -z "$OST_LIST" && abort "No osnames given/found."
-
-# Sanity check -- all OS names should exist
-for OS in $OST_LIST; do
-	check_ost_exist $OS
-done
 
 # Do the cache
 for OS in $OST_LIST; do

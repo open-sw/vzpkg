@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.14 2005/09/29 15:12:40 kir Exp $
+# $Id: functions,v 1.15 2005/10/17 14:41:41 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
@@ -19,7 +19,7 @@ VECFGDIR=/etc/sysconfig/vz-scripts/
 VZCFG=/etc/sysconfig/vz
 VZLIB_SCRIPTDIR=/usr/lib/vzctl/scripts
 YUM=/usr/share/vzyum/bin/yum
-
+ARCHES="x86 i386 x86_64 ia64"
 
 # Handy functions
 
@@ -261,111 +261,126 @@ function get_ve_var()
 	echo $value
 }
 
-# 
-# Add/update single var to /etc/sysconfig/vz-scripts/$VEID.conf
-# $VEID passed as global variable
-#
-function save_ve_var()
-{
-    [ $# -eq 2 ] || abort "$FUNCNAME: Usage $FUNCNAME VAR VALUE"
-    local veconfig s var=$1 value=$2 tmpfile
-#    if [ $VECFGDIR ]; then
-        veconfig="$VECFGDIR/$VEID.conf"
-#    else
-#	    veconfig="$_RH_VECONFDIR/$VEID.conf"
-#    fi
-    [ -r $veconfig ] || abort "Could not open $veconfig."
 
-    tmpfile=`mktemp /tmp/temp.XXXXXX` ||
-        abort "Could not create temporary file."
-    awk -f - << 'EOF' > $tmpfile tvar="$var" tval="$value" $veconfig
-BEGIN{
-    found=0;
-}
-($0 ~ "^" tvar "=.*$" ){
-    printf "%s=\"%s\"\n", tvar, tval;
-    found=1;
-    next;
-}
-{
-    print $0;
-}
-END{
-    if (!found){
-        printf "%s=\"%s\"\n", tvar, tval;
-    }
-}
-EOF
-    [ $? -eq 0 ] || abort "Could not save $val=$value in $veconfig."
-    mv -f $tmpfile $veconfig
-}
-
-
-
-# Checks if VPS ID is number
+# Checks if VPS ID is valid number
 # Parameters:
 #  $1 - VPS ID
 function check_veid()
 {
+	[ "x$1" = 'x0' ] && abort "Operations with VPS 0 does not supported"
 	echo $1 | egrep -q '^[[:digit:]]+$'
 }
 
 
-# Converts OS template name to it's basedir.
+# Converts user-specified OS template name to fully specifed OS template name.
 # Parameters:
-#  $1 - OS template name (like "redhat-9")
+#  $1 - OS template name, can be in one of the following forms:
+#       osname-osversion-set-arch
+#       osname-osversion-set
+#       osname-osversion-arch
+#       osname-osversion
 # Returns:
-#  OS template basedir (like "redhat/9")
-
-function name2basedir()
+#  all four components of OS template, separated by spaces:
+#	name version set arch
+# Exit code is 0 if such osname-osversion exists, and 1 otherwise.
+#
+# NOTE that this function does NOT check:
+#  1. Whether such 'arch' exists for this OS template.
+#  2. Whether such 'set' exists for this OS template.
+# This should be checked in a separate functions (for the sake of better diags). 
+function ost2full()
 {
-	echo $1 | sed -e 's/--.*$//' -e 's#-\([^-]*\)$#/\1#'
+        local ost=$1 oname over oset oarch tost tdir
+        local template=$TEMPLATE
+        if test -z "$template"; then
+                template=`get_vz_var TEMPLATE`
+        fi
+        # Try to extract arch first
+        for oarch in $ARCHES; do
+                tost=${ost%-${oarch}}
+                [ $tost != $ost ] && break
+                oarch=''
+        done
+        # If arch not found, set it.
+        [ -z "$oarch" ] && oarch=$(uname -i)
+        # If arch is x86, set it to i386
+        [ "$oarch" == 'x86' ] && oarch='i386'
+
+        # Now tost should be osname-osversion or osname-osversion-set.
+	oset='default'
+	# If $TEMPLATE/$tost directory exists, we do not extract set field.
+	tdir=`echo $tost | sed 's@-\([^-][^-]*\)$@/\1@'`
+	if ! test -d $template/$tdir; then
+		# Let's check the number of dashes.
+		if test `echo -n "$tost" | sed 's/[^-]//g' | 
+				wc -c` -ge 2; then
+        		# Two or more dashes - try to extract 'set' field.
+		        oset=`echo $tost | awk -F - '{print $NF}'`
+			tost=${tost%-${oset}}
+			tdir=`echo $tost | sed 's@-\([^-][^-]*\)$@/\1@'`
+			[ -d "$template/$tdir" ] || return 1
+		fi
+	fi
+	# Now tost should be osname-osversion
+	# Split it.
+	oname=${tost%-*}
+	# Check that there was at least one '-' in tost.
+	[ "$oname" = "$tost" ] && return 1
+	over=${tost#${oname}-}
+	[ -z "$over" ] && return 1
+	[ -d "$template/$oname/$over" ] || return 1
+
+#	echo "name=$oname version=$over set=$oset arch=$oarch"
+	ost="$oname $over $oset $oarch"
+	echo $ost
 }
 
-# Extracts 'flavor' component of template name.
-# Parameters:
-#  $1 - template name (like "fedora-core-3--min")
-# Returns:
-#  flavor (like "--min")
-function name2flavor()
+# Checks if given OS template exists
+# Parameters: same as returned by ost2full
+# Return: 0 if template exists; non-zero otherwise
+function check_ost_exists()
 {
-	local osname=$1
-	if ! echo $osname | fgrep -q -- '--'; then
-		echo -n
-	else
-		echo $osname | sed 's/^.*\(--.*\)$/\1/'
+	local osname=$1 osver=$2 osset=$3 osarch=$4
+        local template=$TEMPLATE
+        if test -z "$template"; then
+                template=`get_vz_var TEMPLATE`
+        fi
+	if ! test -d $template; then
+		log1 "Directory $template not exists!"
+		return 2
+	elif ! test -d $template/$osname/$osver; then
+		log2 "OS template $osname-$osver not exists!"
+		return 1
+	elif ! test -d $template/$osname/$osver/$osarch; then
+		log2 "No $osname-$osver OS template found for "\
+			"$osarch architecture"
+		return 1
+	elif ! test -f $template/$osname/$osver/$osarch/config/$osset.list; then
+		log2 "Set $osset for $osname-$osver-$osarch " \
+			"OS template not found"
+		return 1
 	fi
+	return 0
 }
 
 # Returns list of packages to be installed into VPS.
 # Parameters:
-#  $1 - OS template name (like "fedora-3")
-#  $2 - optional app template name (like "mysql")
-#  THISTEMPLATE - template base dir (should be set!)
+#  $1 - OS name
+#  $2 - OS version
+#  $3 - OS set
+#  $4 - OS architecture
 function get_packages()
 {
-	if test "x$THISTEMPLATE" == "x"; then
-		log1 "Internal error! THISTEMPLATE is undefined " \
-			"in call to get_packages. Aborting!"
-		exit 1
+	local osname=$1 osver=$2 osset=$3 osarch=$4
+	local template=$TEMPLATE
+	if test -z "$template"; then
+		template=`get_vz_var TEMPLATE`
 	fi
-	local osname=$1
-	local basedir=`name2basedir $osname`
-	local cfgdir=$THISTEMPLATE/config
-	if test $# -eq 1; then
-		# OS template
-		local flavor=`name2flavor $osname`
-		local file=$cfgdir/ostemplate${flavor}.list
-		cat $file | egrep -v '^#|^[[:space:]]*$'
-	elif test $# -eq 2; then
-		# App template
-		appname=$2
-		local file=$cfgdir/$appname/package-list
-		cat $file | egrep -v '^#|^[[:space:]]*$'
-	else
-		log1 "Internal error! get_packages requires 1 or 2 args!"
-		exit 1
-	fi
+	local tdir=$template/$osname/$osver/$osarch
+	local cfgdir=$tdir/config
+	local osset
+	local file=$cfgdir/${osset}.list
+	cat $file | egrep -v '^#|^[[:space:]]*$'
 }
 
 function get_all_basedirs()
@@ -377,31 +392,6 @@ function get_all_basedirs()
 	local basedirs=`find $packages -maxdepth 2 -mindepth 2 -type d \
 		-print | sed "s@^$packages[/]*@@"`
 	echo $basedirs
-}
-
-
-#
-# Parameters:
-# $1 - name of the OS template to look app-templates for
-#
-function get_app_templates()
-{
-    local osname=$1 aconf ret at
-    local osdir=`name2basedir $osname`
-    local template=$TEMPLATE
-    local packages=$PACKAGES
-    if test -z "$template"; then
-	template=`get_vz_var TEMPLATE`
-    fi
-    if test -z "$packages"; then
-	packages=`get_vz_var PACKAGES`
-    fi
-    local aconfigs=`find $template/$osdir/config -name template.conf -print`
-    for aconf in $aconfigs; do
-	at=`echo $aconf | sed -e "s@^$template/$osdir/config/@@" -e "s@/template.conf@@"`
-	ret="$ret $at"
-    done
-    echo $ret
 }
 
 function get_ve_os_template()
@@ -494,30 +484,19 @@ function get_cache_dir() {
 }
 
 function get_all_os_templates() {
-	local tdir=`get_vz_var TEMPLATE`
+	local template=$TEMPLATE
+	[ -z "$template" ] && template=`get_vz_var TEMPLATE`
 	# Here we need it to be ended by slash
-	echo $tdir | egrep -q '/$' || tdir="${tdir}/"
+	echo $template | egrep -q '/$' || template="${template}/"
 
-	local list=`find $tdir -maxdepth 4 -mindepth 4 -type f \
-		-name ostemplate.list | \
-		sed -e "s@^${tdir}@@"  | \
-		fgrep '/config/ostemplate.list' | \
-		sed -e "s@/config/ostemplate.list@@" | \
-		sed -e "s@/@-@" `
+	# /vz/template/fedora-core/3/i386/config/default.list
+	local list=`find $template -maxdepth 5 -mindepth 5 \
+		-type f -name \*.list | \
+		egrep '/config/[^/]*\.list' | \
+		sed -e "s@^${template}@@" -e 's@/config@@' \
+			-e 's/.list$//' -e 's@/@-@g'`
 
 	echo $list
-}
-
-# Check if given OS template exists.
-# Parameters:
-#   $1 - OS name (like "fedora-3")
-function check_ost_exist() {
-	local template=`get_vz_var TEMPLATE`
-	local thistemplate="$template/`name2basedir $1`"
-	local configdir=$thistemplate/config/
-	local flavor=`name2flavor $1`
-	local pkglist=${configdir}ostemplate${flavor}.list
-	test -f $pkglist || abort "OS template $1 does not exist!"
 }
 
 function get_pythonver() {
@@ -553,5 +532,5 @@ function get_rpm_pythonhome()
 	local pyver=`get_pythonver`
 	local path=`get_rpm_path`/lib/python${pyver}/site-packages
 	test -d $path || abort "RPM python path not found: $path"
-	exit $path
+	echo $path
 }

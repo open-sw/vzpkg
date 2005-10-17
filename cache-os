@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.11 2005/09/29 14:34:27 kir Exp $
+# $Id: cache-os,v 1.12 2005/10/17 14:41:41 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005 by SWsoft. Licensed under QPL.
 #
@@ -61,10 +61,18 @@ case $1 in
 		usage
 esac
 
-OSTEMPLATE=$1
-check_ost_exist $OSTEMPLATE
-CACHE=$OSTEMPLATE.tar.gz
 TEMPLATE=`get_vz_var TEMPLATE`
+
+OST=`ost2full $1` || abort "No such OS template: $1"
+set $OST
+OSNAME=$1
+OSVER=$2
+OSSET=$3
+OSARCH=$4
+check_ost_exists $OSNAME $OSVER $OSSET $OSARCH || exit 1
+
+OSTEMPLATE="$OSNAME-$OSVER-$OSSET-$OSARCH"
+CACHE=$OSTEMPLATE.tar.gz
 CACHEDIR=`get_cache_dir`
 
 if test "x$REMOVE" != "x"; then
@@ -78,19 +86,16 @@ if test "x$REMOVE" != "x"; then
 	exit 0
 fi
 
-VEID=`find_lock_nearest_veid 10000` || abort "Can't find free VPS ID"
+VEID=`find_lock_nearest_veid 100000` || abort "Can't find free VPS ID"
 log4 "Using temporary VPS $VEID"
 VE_PRIVATE=`get_vz_var VE_PRIVATE`
 VE_ROOT=`get_vz_var VE_ROOT`
 
 
-BASEDIR=`name2basedir $OSTEMPLATE`
-log5 BASEDIR=$BASEDIR
-THISTEMPLATE=$TEMPLATE/$BASEDIR
 VECFG=$VECFGDIR/$VEID.conf
 VECFGSAMPLE=$VECFGDIR/ve-vps.basic.conf-sample
 # simple init - for initial VPS startup, statically linked
-MYINIT=${TOOLDIR}/myinit
+MYINIT=${TOOLDIR}/myinit.${OSARCH}
 
 function terminate()
 {
