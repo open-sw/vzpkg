@@ -1,18 +1,21 @@
 Name:		vzpkg
 Version:	2.7.0
-Release:	17
+Release:	18
 Summary:	OpenVZ template management tools
 Source:		%{name}-%{version}-%{release}.tar.bz2
 License:	QPL
 Vendor:		SWsoft
+URL:		http://openvz.org/
 Group:		Applications/System
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildArch:	noarch
 
 Requires:	sed, gawk, coreutils
-Requires:	vzctl >= 2.7.0-21
-# yum<2.2.1 has a bug preventing gpgkeys installation to --installroot.
-Requires:	yum >= 2.2.1
+Requires:	vzctl >= 2.7.0-23
+Requires:	vzyum >= 2.4.0-5
+# NOTE this package actually requires vzrpm of some version installed,
+# but the version of vzrpm depends on OS template used.
+# Thus this requirement for vzrpmXX is put to OS template metadata instead.
 
 %define libdir %_datadir/%name
 
@@ -23,9 +26,6 @@ inside Virtual Private Servers.
 
 %prep
 %setup -n %{name}-%{version}-%{release}
-
-%build
-make
 
 %install
 make DESTDIR=%buildroot install
@@ -41,7 +41,7 @@ make DESTDIR=%buildroot install
 %dir %libdir
 %attr(644,root,root) %libdir/functions
 %attr(755,root,root) %libdir/cache-os
-%attr(755,root,root) %libdir/myinit
+%attr(755,root,root) %libdir/myinit.*
 %_mandir/man8/vzpkgcache.8.*
 %_mandir/man8/vzyum.8.*
 %_mandir/man8/vzrpm.8.*
@@ -52,6 +52,16 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 29 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-18
+- support for different (per OSTEMPLATE) rpm versions (bug #27)
+- support/requirement for customized yum
+- rpm/yum now executes scripts in VPS context
+- mounting of /proc is done in VPS context (by our init)
+- preliminary support for template 'flavours' (bug #15)
+- support for per-ostemplate .rpmmacros (bug #16)
+- fixed bug #28 (vzyum should exit if there's no relevant yum.conf)
+- included statically built myinit for different platforms
+
 * Fri Sep 16 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-17
 - fixed vzpkgcache broken by vzctl-2.7.0-21
 - project name changed
