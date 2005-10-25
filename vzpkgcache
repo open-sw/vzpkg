@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzpkgcache,v 1.4 2005/10/25 05:46:07 kir Exp $
+# $Id: vzpkgcache,v 1.5 2005/10/25 10:51:43 kir Exp $
 #
 # vzpkgcache - create cached tarball for OS packages.
 #
@@ -52,7 +52,7 @@ if test $# -gt 0; then
 	for T in $ALLTMPL; do
 		FT=`ost2full $T` || abort "OS template $T not found"
 		set $FT
-		TNAME=$1-$2-$3-$4
+		TNAME=$1-$2-$4-$3
 		check_ost_exists $1 $2 $3 $4 ||
 			abort "OS template $T ($TNAME) not found"
 		OST_LIST="$OST_LIST $TNAME"
