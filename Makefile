@@ -5,7 +5,7 @@ LIBDIR  = /usr/share/vzpkg
 MANDIR  = /usr/share/man
 MAN8DIR = $(MANDIR)/man8
 
-BIN_FILES    = vzpkgcache vzyum vzrpm vzpkgadd vzpkgrm vzpkgls
+BIN_FILES    = vzpkgcache vzyum vzrpm vzpkgadd vzpkgrm vzpkgls vzosname
 LIB_FILES    = functions cache-os
 MAN8_FILES   = man/vzpkgcache.8 man/vzyum.8 man/vzrpm.8
 MYINIT_FILES = myinit.i386 myinit.x86_64 myinit.ia64
