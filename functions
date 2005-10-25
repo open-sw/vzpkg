@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.16 2005/10/25 05:46:07 kir Exp $
+# $Id: functions,v 1.17 2005/10/25 10:28:51 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
@@ -444,9 +444,11 @@ function import_gpgkeys()
 		files="$files $file"
 	done
 	
-	# FIXME: use proper RPM?
-	log4 "Importing RPM GPG keys: $files"
-	test -z "$files" || rpm --root $VE_ROOT --import $files
+	if ! test -z "$files"; then
+		rpm=`get_rpm $tdir`
+		log4 "Importing RPM GPG keys: $files"
+		$rpm --root $VE_ROOT --import $files
+	fi
 }
 
 
