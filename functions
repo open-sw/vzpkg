@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.17 2005/10/25 10:28:51 kir Exp $
+# $Id: functions,v 1.18 2005/10/25 10:49:24 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
@@ -107,6 +107,7 @@ function call_template_script()
 	export VEID
 	export VZCTL
 	set +u
+	export RPM=`get_rpm $tdir`
 	log4 Calling script $script
 	# Run script
 	$script
