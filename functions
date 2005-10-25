@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.18 2005/10/25 10:49:24 kir Exp $
+# $Id: functions,v 1.19 2005/10/25 10:50:28 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
@@ -92,7 +92,8 @@ function abort()
 #  $2 - script name
 function call_template_script()
 {
-	local script=$1/config/$2
+	local tdir=$1
+	local script=$tdir/config/$2
 	if ! test -x $script; then
 		log4 "Script $script not found " \
 			"or non-exec: skipped"
