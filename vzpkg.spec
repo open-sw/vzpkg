@@ -11,6 +11,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 BuildArch:	noarch
 
 Requires:	sed, gawk, coreutils
+Requires:	procmail
 Requires:	vzctl >= 2.7.0-23
 Requires:	vzyum >= 2.4.0-5
 # NOTE this package actually requires vzrpm of some version installed,
@@ -38,6 +39,7 @@ make DESTDIR=%buildroot install
 %attr(755,root,root) %_bindir/vzpkgadd
 %attr(755,root,root) %_bindir/vzpkgrm
 %attr(755,root,root) %_bindir/vzpkgls
+%attr(755,root,root) %_bindir/vzosname
 %dir %libdir
 %attr(644,root,root) %libdir/functions
 %attr(755,root,root) %libdir/cache-os
@@ -52,7 +54,7 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Thu Sep 29 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-18
+* Tue Oct 25 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-18
 - support for different (per OSTEMPLATE) rpm versions (bug #27)
 - support/requirement for customized yum
 - rpm/yum now executes scripts in VPS context
@@ -61,6 +63,8 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 - support for per-ostemplate .rpmmacros (bug #16)
 - fixed bug #28 (vzyum should exit if there's no relevant yum.conf)
 - included statically built myinit for different platforms
+- added vzosname utility
+- added requirement for procmail (needed for lockfile util)
 
 * Fri Sep 16 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-17
 - fixed vzpkgcache broken by vzctl-2.7.0-21

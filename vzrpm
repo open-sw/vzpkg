@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzrpm,v 1.6 2005/10/10 11:06:22 kir Exp $
+# $Id: vzrpm,v 1.7 2005/10/25 05:46:07 kir Exp $
 #
 # vzrpm - a wrapper for rpm to use rpm for OpenVZ VPS.
 #
@@ -40,8 +40,15 @@ RPM_ARGS="--root $VE_ROOT --veid $VEID"
 # Find out which RPM binary to use
 get_ve_os_template $VEID || abort "Can't get OSTEMPLATE for VPS $VEID"
 TEMPLATE=`get_vz_var TEMPLATE`
-THISTEMPLATE=$TEMPLATE/`name2basedir $OSTEMPLATE`
-RPM=`get_rpm`
+OST=`ost2full $1` || abort "No such OS template: $1"
+set $OST
+OSNAME=$1
+OSVER=$2
+OSSET=$3
+OSARCH=$4
+TDIR=$5
+check_ost_exists $OSNAME $OSVER $OSSET $OSARCH || exit 1
+RPM=`get_rpm $TDIR`
 # Run it
 log3 exec $RPM $RPM_ARGS $*
 exec $RPM $RPM_ARGS $*

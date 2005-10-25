@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.12 2005/10/17 14:41:41 kir Exp $
+# $Id: cache-os,v 1.13 2005/10/25 05:46:07 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005 by SWsoft. Licensed under QPL.
 #
@@ -69,9 +69,10 @@ OSNAME=$1
 OSVER=$2
 OSSET=$3
 OSARCH=$4
+TDIR=$5
 check_ost_exists $OSNAME $OSVER $OSSET $OSARCH || exit 1
 
-OSTEMPLATE="$OSNAME-$OSVER-$OSSET-$OSARCH"
+OSTEMPLATE="$OSNAME-$OSVER-$OSARCH-$OSSET"
 CACHE=$OSTEMPLATE.tar.gz
 CACHEDIR=`get_cache_dir`
 
@@ -115,9 +116,10 @@ $VZCTL mount $VEID || abort "Can't mount VPS $VEID"
 test -f $CACHEDIR/$CACHE && log4 "File $CACHEDIR/$CACHE exists"
 
 # Set up PYTHONPATH for our vzyum
-PYTHONPATH=`get_rpm_pythonhome`
+PYTHONPATH=`get_rpm_pythonhome $TDIR`
 export PYTHONPATH
 log4 PYTHONPATH=$PYTHONPATH
+YUM_CONF_FILE=`yum_conf $TDIR`
 
 # Check if we are going to update cache
 if test -f $CACHEDIR/$CACHE -a "x$FORCE" = "x"; then
@@ -130,7 +132,8 @@ if test -f $CACHEDIR/$CACHE -a "x$FORCE" = "x"; then
 		abort "Failed to create a VPS based on cache $CACHE"
 	# Check if updates are available
 	# We use $YUM not vzyum here as latter requires VPS to be running
-	$YUM --installroot $VE_ROOT `yum_conf` --vps=$VEID check-update
+	$YUM --installroot $VE_ROOT $YUM_CONF_FILE \
+		--vps=$VEID check-update
 	YUMEC=$?
 	if test $YUMEC -eq 0; then
 		log3 "No updates are available"
@@ -152,7 +155,7 @@ fi
 
 
 # Run setup-pre script
-call_template_script $OPERATION-pre
+call_template_script $TDIR $OPERATION-pre
 
 # Start VPS now
 log4 Starting VPS
@@ -161,10 +164,10 @@ $VZCTL start $VEID || abort "Can't start VPS $VEID"
 
 # install packages
 if test $OPERATION = 'install'; then
-	LIST=`get_packages $OSTEMPLATE`
+	LIST=`get_packages $TDIR $OSSET`
 	YUM_CMD="install $LIST"
 	# install gpg keys
-	import_gpgkeys
+	import_gpgkeys $TDIR
 elif test $OPERATION = 'update'; then
 	YUM_CMD="update"
 else
@@ -176,9 +179,9 @@ fi
 # which resides in our template configuration directory. If you know a better
 # way of doing it, please enlighten me.
 XX_HOME=$HOME
-export HOME=$THISTEMPLATE/config
+export HOME=$TDIR/config
 
-YUM_CMD="--installroot=$VE_ROOT --vps=$VEID `yum_conf` -y $YUM_CMD"
+YUM_CMD="--installroot=$VE_ROOT --vps=$VEID $YUM_CONF_FILE -y $YUM_CMD"
 # -d $DEBUG_LEVEL
 log4 "Running $YUM $YUM_CMD"
 # FIXME1: We use $YUM not vzyum because latter requires OSTEMPLATE to be set.
@@ -187,7 +190,7 @@ $YUM $YUM_CMD || abort "yum failed with $? exit code"
 export HOME=$XX_HOME
 unset XX_HOME
 
-call_template_script $OPERATION-post
+call_template_script $TDIR $OPERATION-post
 
 # Stop this VPS
 log4 Stopping VPS

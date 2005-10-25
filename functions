@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.15 2005/10/17 14:41:41 kir Exp $
+# $Id: functions,v 1.16 2005/10/25 05:46:07 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
@@ -88,10 +88,11 @@ function abort()
 
 # Calls template-specific script to be run from host system (VPS0)
 # Parameters:
-#  $1 - script name
+#  $1 - tdir
+#  $2 - script name
 function call_template_script()
 {
-	local script=$THISTEMPLATE/config/$1
+	local script=$1/config/$2
 	if ! test -x $script; then
 		log4 "Script $script not found " \
 			"or non-exec: skipped"
@@ -120,7 +121,7 @@ function lock_ve()
 {
     local ntries=0 file=$VZLOCKDIR/$1.lck warned=0
     while [ $ntries -le 3 ]; do
-        ntries=$[ntries+1]
+	ntries=$[ntries+1]
 	if lockfile -1 -r1 $file 2>/dev/null; then
 	    echo -e "$$\nupdating" >$file
 	    return
@@ -140,7 +141,7 @@ function lock_ve()
 	    fi
 	fi
     done
-    abort "Too many retries waiting for lockfile $file"    
+    abort "Too many retries waiting for lockfile $file"
 }
 
 # Unlocks VPS
@@ -157,7 +158,7 @@ function lock_ve_silent()
 {
     local ntries=0 file=$VZLOCKDIR/$1.lck
     while [ $ntries -le 3 ]; do
-        ntries=$[ntries+1]
+	ntries=$[ntries+1]
 	if lockfile -1 -r1 $file 2>/dev/null; then
 	    echo -e "$$\nupdating" >$file
 	    return 0
@@ -209,7 +210,7 @@ function find_lock_nearest_veid()
 		unlock_ve $veid
 		continue
 	    }
-            # use get_vz_var since VPS config file not exist
+	    # use get_vz_var since VPS config file not exist
 	    local private=`VEID=$veid get_vz_var VE_PRIVATE`
 	    [ -e "$private" ] && {
 		unlock_ve $veid
@@ -218,7 +219,7 @@ function find_lock_nearest_veid()
 	    > $VECFGDIR/$veid.conf
 	    echo $veid
 	    return 0
-        }
+	}
     done
     return 1
 }
@@ -271,6 +272,20 @@ function check_veid()
 	echo $1 | egrep -q '^[[:digit:]]+$'
 }
 
+function get_arch() {
+	# Ideally, we'd use uname -i to get canonical arch (i386 on x86 box).
+	# But gentoo folks have patched it to return smth like "GenuineIntel"
+	# so we have to use uname -m instead and convert the result.
+	case `uname -m` in
+		i?86)
+			echo i386
+			;;
+		*)
+			echo $1
+			;;
+	esac
+}
+
 
 # Converts user-specified OS template name to fully specifed OS template name.
 # Parameters:
@@ -280,8 +295,9 @@ function check_veid()
 #       osname-osversion-arch
 #       osname-osversion
 # Returns:
-#  all four components of OS template, separated by spaces:
-#	name version set arch
+#  all four components of OS template, and path to template metadata,
+#  separated by spaces:
+#	name version set arch directory
 # Exit code is 0 if such osname-osversion exists, and 1 otherwise.
 #
 # NOTE that this function does NOT check:
@@ -290,23 +306,27 @@ function check_veid()
 # This should be checked in a separate functions (for the sake of better diags). 
 function ost2full()
 {
-        local ost=$1 oname over oset oarch tost tdir
-        local template=$TEMPLATE
-        if test -z "$template"; then
-                template=`get_vz_var TEMPLATE`
-        fi
-        # Try to extract arch first
-        for oarch in $ARCHES; do
-                tost=${ost%-${oarch}}
-                [ $tost != $ost ] && break
-                oarch=''
-        done
-        # If arch not found, set it.
-        [ -z "$oarch" ] && oarch=$(uname -i)
-        # If arch is x86, set it to i386
-        [ "$oarch" == 'x86' ] && oarch='i386'
+	local ost=$1 oname over oset oarch tost tdir
+	local template=$TEMPLATE
+	if test -z "$template"; then
+		template=`get_vz_var TEMPLATE`
+	fi
+	# Try to extract arch first
+	for oarch in $ARCHES; do
+		# Case -arch is last
+		tost=${ost%-${oarch}}
+		# Case -arch is not last
+		[ "$tost" = "$ost" ] && tost=${ost/-${oarch}/}
+		# Arch found
+		[ "$tost" = "$ost" ] || break
+		oarch=''
+	done
+	# If arch not found, set it.
+	[ -z "$oarch" ] && oarch=`get_arch`
+	# If arch is x86, set it to i386
+	[ "$oarch" == 'x86' ] && oarch='i386'
 
-        # Now tost should be osname-osversion or osname-osversion-set.
+	# Now tost should be osname-osversion or osname-osversion-set.
 	oset='default'
 	# If $TEMPLATE/$tost directory exists, we do not extract set field.
 	tdir=`echo $tost | sed 's@-\([^-][^-]*\)$@/\1@'`
@@ -314,8 +334,8 @@ function ost2full()
 		# Let's check the number of dashes.
 		if test `echo -n "$tost" | sed 's/[^-]//g' | 
 				wc -c` -ge 2; then
-        		# Two or more dashes - try to extract 'set' field.
-		        oset=`echo $tost | awk -F - '{print $NF}'`
+			# Two or more dashes - try to extract 'set' field.
+			oset=`echo $tost | awk -F - '{print $NF}'`
 			tost=${tost%-${oset}}
 			tdir=`echo $tost | sed 's@-\([^-][^-]*\)$@/\1@'`
 			[ -d "$template/$tdir" ] || return 1
@@ -330,8 +350,9 @@ function ost2full()
 	[ -z "$over" ] && return 1
 	[ -d "$template/$oname/$over" ] || return 1
 
+	tdir=$template/$oname/$over/$oarch
 #	echo "name=$oname version=$over set=$oset arch=$oarch"
-	ost="$oname $over $oset $oarch"
+	ost="$oname $over $oset $oarch $tdir"
 	echo $ost
 }
 
@@ -340,11 +361,12 @@ function ost2full()
 # Return: 0 if template exists; non-zero otherwise
 function check_ost_exists()
 {
+	test $# -lt 4 && abort "$FUNCNAME: invalid parameters"
 	local osname=$1 osver=$2 osset=$3 osarch=$4
-        local template=$TEMPLATE
-        if test -z "$template"; then
-                template=`get_vz_var TEMPLATE`
-        fi
+	local template=$TEMPLATE
+	if test -z "$template"; then
+		template=`get_vz_var TEMPLATE`
+	fi
 	if ! test -d $template; then
 		log1 "Directory $template not exists!"
 		return 2
@@ -365,33 +387,17 @@ function check_ost_exists()
 
 # Returns list of packages to be installed into VPS.
 # Parameters:
-#  $1 - OS name
-#  $2 - OS version
-#  $3 - OS set
-#  $4 - OS architecture
+#  $1 - TDIR
+#  $2 - OS SET
 function get_packages()
 {
-	local osname=$1 osver=$2 osset=$3 osarch=$4
 	local template=$TEMPLATE
-	if test -z "$template"; then
-		template=`get_vz_var TEMPLATE`
-	fi
-	local tdir=$template/$osname/$osver/$osarch
+	[ -z "$template" ] && template=`get_vz_var TEMPLATE`
+	local tdir=$1
+	local osset=$2
 	local cfgdir=$tdir/config
-	local osset
 	local file=$cfgdir/${osset}.list
 	cat $file | egrep -v '^#|^[[:space:]]*$'
-}
-
-function get_all_basedirs()
-{
-	local packages=$PACKAGES
-	if test -z "$packages"; then
-		packages=`get_vz_var PACKAGES`
-	fi
-	local basedirs=`find $packages -maxdepth 2 -mindepth 2 -type d \
-		-print | sed "s@^$packages[/]*@@"`
-	echo $basedirs
 }
 
 function get_ve_os_template()
@@ -403,67 +409,46 @@ function get_ve_os_template()
 	if echo $OSTEMPLATE | fgrep -q '/'; then
 		abort "VPS $VEID can not be used with vzpkg utilities."
 	fi
-#
-#	It seems that THISTEMPLATE should be set in gets_and_checks later
-#
-#	local basedir=`name2basedir $OSTEMPLATE`
-#	THISTEMPLATE=$TEMPLATE/$basedir
 }
 
-# Returns -c parameters needed for yum. OSTEMPLATE should be set.
+# Returns -c parameters needed for yum.
 function yum_conf()
 {
-	test -z "$OSTEMPLATE" && abort "yum_conf(): OSTEMPLATE is not set"
-	test -z "$TEMPLATE" && abort "yum_conf(): TEMPLATE is not set"
-	local basedir=`name2basedir $OSTEMPLATE`
-	local conf=$TEMPLATE/$basedir/config/yum.conf
-	test -f $conf || abort "yum repository config file " \
-		"($conf) not found!"
-	echo "-c $conf"
+	local tdir=$1
+	local template=$TEMPLATE
+	if test -z "$template"; then
+		template=`get_vz_var TEMPLATE`
+	fi
+	local cfg=$tdir/config/yum.conf
+	# FIXME: check for osset-specific yum.conf
+	test -f $cfg || abort "yum repository config file " \
+		"($cfg) not found!"
+	echo "-c $cfg"
 }
 
 
 # Import gpgkeys from OS template's config/gpgkeys directory to the VPS.
-# Environment: OSTEMPLATE, TEMPLATE, VE_ROOT should be set.
+# Parameters:
+#  $1 - template dir
+# Environment: VE_ROOT should be set.
 function import_gpgkeys()
 {
-	test -z "$OSTEMPLATE" && abort "import_gpgkeys(): OSTEMPLATE not set"
-	test -z "$TEMPLATE" && abort "import_gpgkeys(): TEMPLATE not set"
-	test -z "$VE_ROOT" && abort "import_gpgkeys(): VE_ROOT not set"
-	local basedir=`name2basedir $OSTEMPLATE`
-	local keydir=$TEMPLATE/$basedir/config/gpgkeys
+	local tdir=$1
+	test -z "$tdir" && abort "$FUNCNAME: argument missing"
+	test -z "$VE_ROOT" && abort "$FUNCNAME: VE_ROOT not set"
+	local keydir=$tdir/config/gpgkeys
 	test -d $keydir || return
 	local file
 	local files=''
 	for file in $keydir/*; do
 		files="$files $file"
 	done
+	
+	# FIXME: use proper RPM?
+	log4 "Importing RPM GPG keys: $files"
 	test -z "$files" || rpm --root $VE_ROOT --import $files
 }
 
-
-# full rpm name = name-version-release, get name
-function get_rpm_name()
-{
-    [ $# -eq 1 ] || abort "$FUNCNAME: usage $FUNCNAME RPM"
-    local pkg=$1
-    shopt -s nullglob extglob
-    pkg=${pkg%%-+([^-])}
-    pkg=${pkg%%-+([^-])}
-    shopt -u nullglob extglob
-    echo $pkg
-}
-
-#
-# Check pretend mode
-function_check_pretend()
-{
-case $1 in
-        -p)
-	PRETEND=yes
-	;;
-esac
-}
 
 # Gets VPS ID from command line argument
 function get_veid()
@@ -506,12 +491,9 @@ function get_pythonver() {
 
 function get_rpm_path()
 {
-	if test "x$THISTEMPLATE" == "x"; then
-		log1 "Internal error! THISTEMPLATE is undefined " \
-			"in call to $0. Aborting!"
-		exit 1
-	fi
-	local cfgdir=$THISTEMPLATE/config
+	local tdir=$1
+	[ -z "$tdir" ] && abort "$FUNCNAME: tdir argument missing"
+	local cfgdir=$tdir/config
 	local rpmf=$cfgdir/rpm
 	test -f $rpmf || abort "File $rpmf not found!"
 	local rpmver=`cat $rpmf`
@@ -522,7 +504,7 @@ function get_rpm_path()
 
 function get_rpm()
 {
-	local rpm=`get_rpm_path`/bin/rpm
+	local rpm=`get_rpm_path $1`/bin/rpm
 	test -x $rpm || abort "RPM not found or non-executable: $rpm"
 	echo $rpm
 }
@@ -530,7 +512,7 @@ function get_rpm()
 function get_rpm_pythonhome()
 {
 	local pyver=`get_pythonver`
-	local path=`get_rpm_path`/lib/python${pyver}/site-packages
+	local path=`get_rpm_path $1`/lib/python${pyver}/site-packages
 	test -d $path || abort "RPM python path not found: $path"
 	echo $path
 }
