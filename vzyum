@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzyum,v 1.8 2005/10/25 05:46:07 kir Exp $
+# $Id: vzyum,v 1.9 2005/10/26 11:13:15 kir Exp $
 #
 # vzyum - a wrapper for yum to use yum for OpenVZ VPS.
 #
@@ -30,6 +30,7 @@ fi
 
 get_veid $1
 shift
+USER_ARGS=$*
 # Sanity checks
 STATUS=`$VZCTL status $VEID` || abort "Can't get status for VPS $VEID: " \
 	"vzctl status failed with code $?"
@@ -51,5 +52,5 @@ YUM_ARGS="$YUM_ARGS --installroot $VE_ROOT --vps=$VEID"
 PYTHONPATH=`get_rpm_pythonhome $TDIR`
 export PYTHONPATH
 log4 PYTHONPATH=$PYTHONPATH
-log3 exec $YUM $YUM_ARGS $*
-exec $YUM $YUM_ARGS $*
+log3 exec $YUM $YUM_ARGS $USER_ARGS
+exec $YUM $YUM_ARGS $USER_ARGS

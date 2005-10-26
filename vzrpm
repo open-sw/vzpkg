@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzrpm,v 1.7 2005/10/25 05:46:07 kir Exp $
+# $Id: vzrpm,v 1.8 2005/10/26 11:13:15 kir Exp $
 #
 # vzrpm - a wrapper for rpm to use rpm for OpenVZ VPS.
 #
@@ -30,6 +30,7 @@ fi
 
 get_veid $1
 shift
+USER_ARGS=$*
 # Sanity checks
 STATUS=`$VZCTL status $VEID` || abort "Can't get status for VPS $VEID: " \
 	"vzctl status failed with code $?"
@@ -50,5 +51,5 @@ TDIR=$5
 check_ost_exists $OSNAME $OSVER $OSSET $OSARCH || exit 1
 RPM=`get_rpm $TDIR`
 # Run it
-log3 exec $RPM $RPM_ARGS $*
-exec $RPM $RPM_ARGS $*
+log3 exec $RPM $RPM_ARGS $USER_ARGS
+exec $RPM $RPM_ARGS $USER_ARGS
