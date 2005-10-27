@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.13 2005/10/25 05:46:07 kir Exp $
+# $Id: cache-os,v 1.14 2005/10/27 11:04:21 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005 by SWsoft. Licensed under QPL.
 #
@@ -155,7 +155,8 @@ fi
 
 
 # Run setup-pre script
-call_template_script $TDIR $OPERATION-pre
+call_template_script $TDIR $OPERATION-pre || \
+	abort "Script $OPERATION-pre failed"
 
 # Start VPS now
 log4 Starting VPS
@@ -190,7 +191,8 @@ $YUM $YUM_CMD || abort "yum failed with $? exit code"
 export HOME=$XX_HOME
 unset XX_HOME
 
-call_template_script $TDIR $OPERATION-post
+call_template_script $TDIR $OPERATION-post || \
+	abort "Script $OPERATION-post failed"
 
 # Stop this VPS
 log4 Stopping VPS

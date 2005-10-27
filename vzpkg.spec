@@ -18,6 +18,12 @@ Requires:	vzyum >= 2.4.0-5
 # but the version of vzrpm depends on OS template used.
 # Thus this requirement for vzrpmXX is put to OS template metadata instead.
 
+# New vzpkg does not work with old template metadata.
+Conflicts:	vztmpl-fedora-core-3 > 2.0
+Conflicts:	vztmpl-fedora-core-4 > 2.0
+Conflicts:	vztmpl-centos-4 > 2.0
+
+
 %define libdir %_datadir/%name
 
 %description
@@ -65,6 +71,7 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 - included statically built myinit for different platforms
 - added vzosname utility
 - added requirement for procmail (needed for lockfile util)
+- fixed bug #63 (template cache should not be created if install-post fails)
 
 * Fri Sep 16 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-17
 - fixed vzpkgcache broken by vzctl-2.7.0-21
