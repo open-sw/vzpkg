@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.19 2005/10/25 10:50:28 kir Exp $
+# $Id: functions,v 1.20 2005/11/07 14:17:44 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
@@ -278,12 +278,13 @@ function get_arch() {
 	# Ideally, we'd use uname -i to get canonical arch (i386 on x86 box).
 	# But gentoo folks have patched it to return smth like "GenuineIntel"
 	# so we have to use uname -m instead and convert the result.
-	case `uname -m` in
+	local arch=`uname -m`
+	case $arch in
 		i?86)
 			echo i386
 			;;
 		*)
-			echo $1
+			echo $arch
 			;;
 	esac
 }
