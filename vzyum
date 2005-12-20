@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzyum,v 1.9 2005/10/26 11:13:15 kir Exp $
+# $Id: vzyum,v 1.10 2005/12/20 12:51:48 kir Exp $
 #
 # vzyum - a wrapper for yum to use yum for OpenVZ VPS.
 #
@@ -39,7 +39,7 @@ echo $STATUS | grep -qw "running" || abort "VPS $VEID not running; " \
 	"you should start it first"
 get_ve_os_template $VEID || abort "Can't get OSTEMPLATE for VPS $VEID"
 TEMPLATE=`get_vz_var TEMPLATE`
-OST=`ost2full $OSTEMPLATE` || abort "No such OS template: $1"
+OST=`ost2full $OSTEMPLATE` || abort "No such OS template: $OSTEMPLATE"
 set $OST
 OSNAME=$1
 OSVER=$2
