@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.17 2006/05/11 14:28:35 kir Exp $
+# $Id: cache-os,v 1.18 2006/05/11 14:38:18 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005, 2006 by SWsoft. Licensed under GNU GPL.
 #
@@ -120,7 +120,10 @@ PYTHONPATH=`get_rpm_pythonhome $TDIR`
 export PYTHONPATH
 log4 PYTHONPATH=$PYTHONPATH
 # Set LD_LIBRARY_PATH to access rpm libs
+set +u
 LD_LIBRARY_PATH=`get_rpmlib_path $TDIR`:$LD_LIBRARY_PATH
+set -u
+export LD_LIBRARY_PATH
 log4 LD_LIBRARY_PATH=$LD_LIBRARY_PATH
 
 YUM_CONF_FILE=`yum_conf $TDIR`
