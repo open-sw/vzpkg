@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: vzyum,v 1.11 2006/05/11 14:20:35 kir Exp $
+# $Id: vzyum,v 1.12 2006/05/11 14:28:35 kir Exp $
 #
 # vzyum - a wrapper for yum to use yum for OpenVZ VE.
 #
@@ -49,8 +49,12 @@ TDIR=$5
 check_ost_exists $OSNAME $OSVER $OSSET $OSARCH || exit 1
 YUM_ARGS=`yum_conf $TDIR`
 YUM_ARGS="$YUM_ARGS --installroot $VE_ROOT --vps=$VEID"
+# Set PYTHONPATH
 PYTHONPATH=`get_rpm_pythonhome $TDIR`
 export PYTHONPATH
 log4 PYTHONPATH=$PYTHONPATH
+# Set LD_LIBRARY_PATH to access rpm libs
+LD_LIBRARY_PATH=`get_rpmlib_path $TDIR`:$LD_LIBRARY_PATH
+log4 LD_LIBRARY_PATH=$LD_LIBRARY_PATH
 log3 exec $YUM $YUM_ARGS $USER_ARGS
 exec $YUM $YUM_ARGS $USER_ARGS

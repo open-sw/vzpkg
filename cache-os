@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: cache-os,v 1.16 2006/05/11 14:23:39 kir Exp $
+# $Id: cache-os,v 1.17 2006/05/11 14:28:35 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005, 2006 by SWsoft. Licensed under GNU GPL.
 #
@@ -119,6 +119,10 @@ test -f $CACHEDIR/$CACHE && log4 "File $CACHEDIR/$CACHE exists"
 PYTHONPATH=`get_rpm_pythonhome $TDIR`
 export PYTHONPATH
 log4 PYTHONPATH=$PYTHONPATH
+# Set LD_LIBRARY_PATH to access rpm libs
+LD_LIBRARY_PATH=`get_rpmlib_path $TDIR`:$LD_LIBRARY_PATH
+log4 LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+
 YUM_CONF_FILE=`yum_conf $TDIR`
 
 # Check if we are going to update cache

@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.23 2006/05/11 14:23:39 kir Exp $
+# $Id: functions,v 1.24 2006/05/11 14:28:35 kir Exp $
 #
 # Copyright (C) 2004, 2005, 2006, SWsoft. Licensed under GNU GPL v.2.
 # By Kir Kolyshkin.
@@ -521,3 +521,11 @@ function get_rpm_pythonhome()
 	test -d $path || abort "RPM python path not found: $path"
 	echo $path
 }
+
+function get_rpmlib_path()
+{
+        local path=`get_rpm_path $1`/lib
+        test -d $path || abort "RPM lib path not found: $path"
+        echo $path
+}
+
