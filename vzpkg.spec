@@ -1,10 +1,9 @@
 Name:		vzpkg
-Version:	2.7.0
-Release:	18
+Version:	3.0.0
+Release:	1
 Summary:	OpenVZ template management tools
-Source:		%{name}-%{version}-%{release}.tar.bz2
+Source:		%{name}-%{version}.tar.bz2
 License:	GPL
-Vendor:		SWsoft
 URL:		http://openvz.org/
 Group:		Applications/System
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
@@ -22,13 +21,16 @@ Requires:	vzyum >= 2.4.0-5
 Conflicts:	vztmpl-fedora-core-3 > 2.0
 Conflicts:	vztmpl-fedora-core-4 > 2.0
 Conflicts:	vztmpl-centos-4 > 2.0
-
+# Since vzpkg-3.0 it requires newer vzrpms
+# (the ones with dynamically linked python modules)
+Conflicts:	vzrpm43 < 4.3.3-13_nonptl.1.swsoft
+#Conflicts:	vzrpm44 < 
 
 %define libdir %_datadir/%name
 
 %description
 OpenVZ template management tools are used for software installation
-inside Virtual Private Servers.
+inside Virtual Environments.
 
 
 %prep
@@ -60,6 +62,11 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu May 11 2006 Kir Kolyshkin <kir-at-openvz.org> 3.0.0-1
+- use newer vzrpms with dynamically linked python modules
+- relicensed under GNU GPL
+- changed VPS to VE
+
 * Tue Oct 25 2005 Kir Kolyshkin <kir-at-sw.ru> 2.7.0-18
 - support for different (per OSTEMPLATE) rpm versions (bug #27)
 - support/requirement for customized yum
