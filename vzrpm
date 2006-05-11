@@ -1,9 +1,9 @@
 #!/bin/bash
-# $Id: vzrpm,v 1.9 2005/10/26 11:34:56 kir Exp $
+# $Id: vzrpm,v 1.10 2006/05/11 14:20:35 kir Exp $
 #
-# vzrpm - a wrapper for rpm to use rpm for OpenVZ VPS.
+# vzrpm - a wrapper for rpm to use rpm for OpenVZ VE.
 #
-# Copyright (C) 2005, SWsoft. Licensed under QPL.
+# Copyright (C) 2005, SWsoft. Licensed under GNU GPL v.2.
 # By Kir Kolyshkin.
 
 TOOLDIR=/usr/share/vzpkg
@@ -17,7 +17,7 @@ set -e
 
 function usage() {
 	cat << USAGE_EOF 1>&2
-Usage: $PROGNAME <VPSID> <arguments>
+Usage: $PROGNAME <VEID> <arguments>
   where <arguments> are yum arguments.
 USAGE_EOF
 	exit $1
@@ -32,14 +32,14 @@ get_veid $1
 shift
 USER_ARGS=$*
 # Sanity checks
-STATUS=`$VZCTL status $VEID` || abort "Can't get status for VPS $VEID: " \
+STATUS=`$VZCTL status $VEID` || abort "Can't get status for VE $VEID: " \
 	"vzctl status failed with code $?"
-echo $STATUS | grep -qw "exist" || abort "VPS $VEID not exist!"
-echo $STATUS | grep -qw "running" || abort "VPS $VEID not running; " \
+echo $STATUS | grep -qw "exist" || abort "VE $VEID not exist!"
+echo $STATUS | grep -qw "running" || abort "VE $VEID not running; " \
 	"you should start it first"
 RPM_ARGS="--root $VE_ROOT --veid $VEID"
 # Find out which RPM binary to use
-get_ve_os_template $VEID || abort "Can't get OSTEMPLATE for VPS $VEID"
+get_ve_os_template $VEID || abort "Can't get OSTEMPLATE for VE $VEID"
 TEMPLATE=`get_vz_var TEMPLATE`
 OST=`ost2full $OSTEMPLATE` || abort "No such OS template: $OSTEMPLATE"
 set $OST

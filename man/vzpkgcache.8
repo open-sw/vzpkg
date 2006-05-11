@@ -1,6 +1,6 @@
-.TH vzpkgcache 8 "Sep 16, 2005" "OpenVZ" "Virtual Private Servers"
+.TH vzpkgcache 8 "May 11, 2006" "OpenVZ" "Virtual Environments"
 .SH NAME
-vzpkgcache \- create a tarball (cache) of VPS private area
+vzpkgcache \- create a tarball (cache) of VE private area
 .SH SYNOPSIS
 \fBvzpkgcache\fR [\fB-f\fR|\fB--force\fR] [\fIosname\fR [...]]
 .br
@@ -8,11 +8,11 @@ vzpkgcache \- create a tarball (cache) of VPS private area
 .br
 \fBvzpkgcache\fR \fB-h\fR|\fB--help\fR
 .SH DESCRIPTION
-This utility creates a tarballs of the potential VPS for all available
-(or given) OS templates and puts them into \fB\f(CW/vz/template/cache/\fR
+This utility creates a tarballs of the potential VE for all available
+(or specified) OS templates and puts them into \fB\f(CW/vz/template/cache/\fR
 directory. Such tarball (also known as "OS template cache") is to be
 used later during \fB\f(CWvzctl create\fR stage -- it is simply deployed
-into the VPS private area.
+into the VE private area.
 .P
 If no \fIosname\fRs are given, all OS templates are worked on. This rule
 is not applied when using \fB-r\fR option -- in this case you have to specify
@@ -38,6 +38,6 @@ and prints a diagnostic message on stderr.
 .BI vzctl (8)\fR,
 .BI vzyum (8)\fR.
 .SH COPYRIGHT
-Copyright (C) 2005, SWsoft. Distributed under QPL.
+Copyright (C) 2005, 2006, SWsoft. Distributed under GNU GPL.
 .SH AUTHOR
-Kir Kolyshkin <kir@sw.ru>
+Kir Kolyshkin <kir@openvz.org>

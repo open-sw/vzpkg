@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: functions,v 1.21 2005/11/07 14:24:13 kir Exp $
+# $Id: functions,v 1.22 2006/05/11 14:20:35 kir Exp $
 #
 # Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
@@ -86,7 +86,7 @@ function abort()
 	exit 1
 }
 
-# Calls template-specific script to be run from host system (VPS0)
+# Calls template-specific script to be run from host system (VE0)
 # Parameters:
 #  $1 - tdir
 #  $2 - script name
@@ -116,9 +116,9 @@ function call_template_script()
 
 ## Borrowed from vzpkgtools
 
-# Locks the VPS
+# Locks the VE
 # Parameters:
-#  $1 - VPS ID
+#  $1 - VE ID
 function lock_ve()
 {
     local ntries=0 file=$VZLOCKDIR/$1.lck warned=0
@@ -133,7 +133,7 @@ function lock_ve()
 	    pid=`echo $pid | awk '{print $1}'`
 	    if [ "$pid" -a -e /proc/$pid/cmdline ]; then
 		if [ $warned -eq 0 ]; then
-		    log2 "VPS $1 locked by pid=$pid"
+		    log2 "VE $1 locked by pid=$pid"
 		    warned=1
 		fi
 		continue
@@ -146,13 +146,13 @@ function lock_ve()
     abort "Too many retries waiting for lockfile $file"
 }
 
-# Unlocks VPS
+# Unlocks VE
 # Parameters:
-#  $1 - VPS ID
+#  $1 - VE ID
 function unlock_ve()
 {
     local file=$VZLOCKDIR/$1.lck
-#   log4 Unlocking VPS $1
+#   log4 Unlocking VE $1
     rm -f $file
 }
 
@@ -212,7 +212,7 @@ function find_lock_nearest_veid()
 		unlock_ve $veid
 		continue
 	    }
-	    # use get_vz_var since VPS config file not exist
+	    # use get_vz_var since VE config file not exist
 	    local private=`VEID=$veid get_vz_var VE_PRIVATE`
 	    [ -e "$private" ] && {
 		unlock_ve $veid
@@ -254,9 +254,9 @@ function get_vz_var()
 	echo $value
 }
 
-# Returns some value from VPS configuration file. Parameters:
+# Returns some value from VE configuration file. Parameters:
 #   $1 - needed variable name
-#   $VEID - VPS ID
+#   $VEID - VE ID
 function get_ve_var()
 {
 	local vecfg=$VECFGDIR/$VEID.conf
@@ -265,12 +265,12 @@ function get_ve_var()
 }
 
 
-# Checks if VPS ID is valid number
+# Checks if VE ID is valid number
 # Parameters:
-#  $1 - VPS ID
+#  $1 - VE ID
 function check_veid()
 {
-	[ "x$1" = 'x0' ] && abort "Operations with VPS 0 does not supported"
+	[ "x$1" = 'x0' ] && abort "Operations with VE 0 does not supported"
 	echo $1 | egrep -q '^[[:digit:]]+$'
 }
 
@@ -388,7 +388,7 @@ function check_ost_exists()
 	return 0
 }
 
-# Returns list of packages to be installed into VPS.
+# Returns list of packages to be installed into VE.
 # Parameters:
 #  $1 - TDIR
 #  $2 - OS SET
@@ -408,9 +408,9 @@ function get_ve_os_template()
 	test -z "$VEID" && abort "get_ve_os_template(): VEID is not set!"
 
 	OSTEMPLATE=`get_ve_var OSTEMPLATE`
-	test -z "$OSTEMPLATE" && abort "OSTEMPLATE is not set for VPS $VEID!"
+	test -z "$OSTEMPLATE" && abort "OSTEMPLATE is not set for VE $VEID!"
 	if echo $OSTEMPLATE | fgrep -q '/'; then
-		abort "VPS $VEID can not be used with vzpkg utilities."
+		abort "VE $VEID can not be used with vzpkg utilities."
 	fi
 }
 
@@ -430,7 +430,7 @@ function yum_conf()
 }
 
 
-# Import gpgkeys from OS template's config/gpgkeys directory to the VPS.
+# Import gpgkeys from OS template's config/gpgkeys directory to the VE.
 # Parameters:
 #  $1 - template dir
 # Environment: VE_ROOT should be set.
@@ -455,12 +455,12 @@ function import_gpgkeys()
 }
 
 
-# Gets VPS ID from command line argument
+# Gets VE ID from command line argument
 function get_veid()
 {
 	VEID=$1
 	if ! check_veid $VEID; then
-		log1 "VPS ID is not a number: $VEID"
+		log1 "VE ID is not a number: $VEID"
 		usage 1
 	fi
 	VE_ROOT=`get_vz_var VE_ROOT`

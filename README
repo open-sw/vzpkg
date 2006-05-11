@@ -1,7 +1,7 @@
-vzpkg - OpenVZ VPS template management tools
+vzpkg - OpenVZ VE template management tools
 ============================================
 
-	This is a collection of scripts aimed at VPS template management.
+	This is a collection of scripts aimed at VE template management.
 	It mostly deals with creation of OS template caches. Also included
 	are two handy utilities - vzyum and vzrpm.
 
