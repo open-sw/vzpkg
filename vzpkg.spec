@@ -3,7 +3,7 @@ Version:	2.7.0
 Release:	18
 Summary:	OpenVZ template management tools
 Source:		%{name}-%{version}-%{release}.tar.bz2
-License:	QPL
+License:	GPL
 Vendor:		SWsoft
 URL:		http://openvz.org/
 Group:		Applications/System
@@ -53,7 +53,7 @@ make DESTDIR=%buildroot install
 %_mandir/man8/vzpkgcache.8.*
 %_mandir/man8/vzyum.8.*
 %_mandir/man8/vzrpm.8.*
-%doc README NEWS TODO LICENSE.QPL
+%doc README NEWS TODO COPYING
 
 %clean
 test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT

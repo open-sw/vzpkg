@@ -1,8 +1,8 @@
-/* $Id: init.c,v 1.4 2005/10/10 13:29:24 kir Exp $
+/* $Id: init.c,v 1.5 2006/05/11 14:23:39 kir Exp $
  * Init -- very simple init stub
  * Shamelessly borrowed from old vzpkgtools.
  *
- * Copyright (C) 2004, 2005, SWsoft. Licensed under QPL.
+ * Copyright (C) 2004, 2005, SWsoft. Licensed under GNU GPL v.2.
  *
  * Compile statically on an appropriate architecture
  * using dietlibc:

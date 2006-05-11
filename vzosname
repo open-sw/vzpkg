@@ -1,9 +1,9 @@
 #!/bin/bash
-# $Id: vzosname,v 1.1 2005/10/25 05:46:07 kir Exp $
+# $Id: vzosname,v 1.2 2006/05/11 14:23:39 kir Exp $
 #
 # vzosname - "canonize" given OS template name.
 #
-# Copyright (C) 2005, SWsoft. Licensed under QPL.
+# Copyright (C) 2005, SWsoft. Licensed under GNU GPL.
 # By Kir Kolyshkin.
 
 TOOLDIR=/usr/share/vzpkg

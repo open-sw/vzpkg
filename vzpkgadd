@@ -1,6 +1,6 @@
 #!/bin/bash
-# $Id: vzpkgadd,v 1.4 2006/05/11 14:20:35 kir Exp $
-# Copyright (C) 2005, SWsoft. Licensed under QPL.
+# $Id: vzpkgadd,v 1.5 2006/05/11 14:23:39 kir Exp $
+# Copyright (C) 2005, SWsoft. Licensed under GNU GPL v.2.
 #
 # Simple wrapper for vzrpm -U
 
