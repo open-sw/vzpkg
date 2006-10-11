@@ -28,6 +28,9 @@ Conflicts:	vzrpm43 < 4.3.3-13_nonptl.1.swsoft
 
 %define libdir %_datadir/%name
 
+#avoid stripping
+%define __strip /bin/true
+
 %description
 OpenVZ template management tools are used for software installation
 inside Virtual Environments.
