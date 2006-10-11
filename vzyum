@@ -47,6 +47,7 @@ OSSET=$3
 OSARCH=$4
 TDIR=$5
 check_ost_exists $OSNAME $OSVER $OSSET $OSARCH || exit 1
+MARK64=`is_64bit $OSARCH`
 YUM_ARGS=`yum_conf $TDIR`
 YUM_ARGS="$YUM_ARGS --installroot $VE_ROOT --vps=$VEID"
 # Set PYTHONPATH

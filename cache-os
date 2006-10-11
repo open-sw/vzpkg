@@ -75,6 +75,7 @@ check_ost_exists $OSNAME $OSVER $OSSET $OSARCH || exit 1
 OSTEMPLATE="$OSNAME-$OSVER-$OSARCH-$OSSET"
 CACHE=$OSTEMPLATE.tar.gz
 CACHEDIR=`get_cache_dir`
+MARK64=`is_64bit $OSARCH`
 
 if test "x$REMOVE" != "x"; then
 	log3 "Removing OS template cache for $OSTEMPLATE template"

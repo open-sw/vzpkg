@@ -517,15 +517,27 @@ function get_rpm()
 function get_rpm_pythonhome()
 {
 	local pyver=`get_pythonver`
-	local path=`get_rpm_path $1`/lib/python${pyver}/site-packages
+	local path=`get_rpm_path $1`/lib${MARK64}/python${pyver}/site-packages
 	test -d $path || abort "RPM python path not found: $path"
 	echo $path
 }
 
 function get_rpmlib_path()
 {
-        local path=`get_rpm_path $1`/lib
+        local path=`get_rpm_path $1`/lib${MARK64}
         test -d $path || abort "RPM lib path not found: $path"
         echo $path
 }
 
+function is_64bit()
+{
+# Here we assume that all the architectures but i*86 are 64bit :)
+	case $1 in
+	i*86)
+		echo -n
+		;;
+	*)
+		echo -n 64
+		;;
+	esac
+}

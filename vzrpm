@@ -49,6 +49,7 @@ OSSET=$3
 OSARCH=$4
 TDIR=$5
 check_ost_exists $OSNAME $OSVER $OSSET $OSARCH || exit 1
+MARK64=`is_64bit $OSARCH`
 RPM=`get_rpm $TDIR`
 # Run it
 log3 exec $RPM $RPM_ARGS $USER_ARGS
