@@ -34,7 +34,7 @@ inside Virtual Environments.
 
 
 %prep
-%setup -n %{name}-%{version}-%{release}
+%setup -n %{name}-%{version}
 
 %install
 make DESTDIR=%buildroot install
