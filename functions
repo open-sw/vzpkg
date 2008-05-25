@@ -15,14 +15,23 @@ test -z "$DEBUG_LEVEL"	&& DEBUG_LEVEL=3
 # Some handy definitions
 VZCTL=/usr/sbin/vzctl
 VZLOCKDIR=/vz/lock
-VECFGDIR=/etc/sysconfig/vz-scripts/
-VZCFG=/etc/sysconfig/vz
+VECFGDIR_OLD=/etc/sysconfig/vz-scripts/
+VZCFG_OLD=/etc/sysconfig/vz
+VECFGDIR=/etc/vz/conf/
+VZCFG=/etc/vz/vz.conf
 VZLIB_SCRIPTDIR=/usr/lib/vzctl/scripts
 YUM=/usr/share/vzyum/bin/yum
 ARCHES="i386 x86_64 ia64 x86"
 
-# Handy functions
+# check that configs are in right place - use old values otherwise
+if ! test -d "$VECFGDIR"; then
+	VECFGDIR=$VECFGDIR_OLD
+fi
+if ! test -f "$VZCFG"; then
+	VZCFG=$VZCFG_OLD
+fi
 
+# Handy functions
 
 # Generic log; please use logN instead.
 function log()
