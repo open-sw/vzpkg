@@ -1,4 +1,3 @@
-DESTDIR =
 BINDIR  = /usr/bin
 SBINDIR = /usr/sbin
 LIBDIR  = /usr/share/vzpkg
