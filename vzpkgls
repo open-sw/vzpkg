@@ -2,9 +2,9 @@
 # $Id: vzpkgls,v 1.4 2005/09/16 13:04:53 kir Exp $
 #
 # Utility to list either OS templates available on an OpenVZ node,
-# or an OS template installed into a given VPS. See usage() for info.
+# or an OS template installed into a given VE. See usage() for info.
 #
-# Copyright (C) 2005, SWsoft. Licensed under QPL.
+# Copyright (C) 2003, 2004, 2005, 2006, SWsoft. Licensed under GNU GPL.
 # By Kir Kolyshkin.
 
 
@@ -22,11 +22,11 @@ _EOF_
 }
 
 function list_ve() {
-	# List VPS OS template
+	# List VE OS template
 	STATUS=`$VZCTL status $VEID` || \
-		abort "Can't get status for VPS $VEID: " \
+		abort "Can't get status for VE $VEID: " \
 			"vzctl status failed with code $?"
-	echo $STATUS | grep -qw "exist" || abort "VPS $VEID not exist!"
+	echo $STATUS | grep -qw "exist" || abort "VE $VEID not exist!"
 	get_ve_os_template
 	echo $OSTEMPLATE
 }
@@ -49,7 +49,7 @@ while ! test -z $1; do
 			# For compatibility; just ignore
 			;;
 		*)
-			# Is VPSID supplied?
+			# Is VEID supplied?
 			if echo $1 | egrep -q '^[1-9][0-9]*$'; then
 				VEID=$1
 				list_ve
