@@ -17,8 +17,6 @@ export -f find_template_config_file
 get_veid $1
 export VEID VE_ROOT VE_PRIVATE
 
-shift
-USER_ARGS=$*
 # Sanity checks
 STATUS=`$VZCTL status $VEID` || abort "Can't get status for VE $VEID: " \
 	"vzctl status failed with code $?"
@@ -41,5 +39,5 @@ check_ost_exists $OS_NAME $OS_VER $OS_SET $OS_ARCH || exit 1
 PACKAGER=`get_packager` || exit 1
 
 # Run it
-log4 exec $TOOLDIR/$PACKAGER-add $USER_ARGS
-exec $TOOLDIR/$PACKAGER-add $USER_ARGS
+log4 exec $TOOLDIR/$PACKAGER-update
+exec $TOOLDIR/$PACKAGER-update

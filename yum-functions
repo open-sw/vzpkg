@@ -1,0 +1,72 @@
+#!/bin/bash
+# vim: ts=4 sw=4 ai noet
+# $Id$
+#
+# Copyright (C) 2008, Robert Nelson. Licensed under GPLv2.
+# By Robert Nelson.
+#
+
+TOOLDIR=/usr/share/vzpkg
+
+. ${TOOLDIR}/functions
+
+# Returns -c parameters needed for yum.
+function yum_conf()
+{
+	local cfg=`find_template_config_file yum.conf`
+	test -f "$cfg" || abort "yum repository config file yum.conf not found!"
+	echo "-c $cfg"
+}
+
+# Import gpgkeys from OS template's config/gpgkeys directory to the VE.
+# Parameters:
+# Environment: VE_ROOT should be set.
+function import_gpgkeys()
+{
+	test -z "$VE_ROOT" && abort "$FUNCNAME: VE_ROOT not set"
+	local keydir=`find_template_config_file gpgkeys`
+	test -d "$keydir" || return
+	local files="$keydir/*"
+	
+	if ! test -z "$files"; then
+		log4 "Importing RPM GPG keys: $files"
+		rpm --root $VE_ROOT --import $files
+	fi
+}
+
+function run_yum()
+{
+	# Dirty dirty hack for yum/rpm to read RPM macros from the file .rpmmacros
+	# which resides in our template configuration directory. If you know a better
+	# way of doing it, please enlighten me.
+	local orig_HOME=$HOME
+	local file=`find_template_config_file .rpmmacros`
+	test -n "$file" && HOME=`dirname $file` || HOME=$TEMPLATE_DIR/config
+
+	log4 Mounting $VE_ROOT/var/cache/yum
+	mount -o bind $TEMPLATE_DIR/yum-cache $VE_ROOT/var/cache/yum
+
+	YUM_CONF_FILE=`yum_conf` || exit $?
+
+	YUM_ARGS="--installroot=$VE_ROOT $YUM_CONF_FILE -y $*"
+
+	log4 "Running yum $YUM_ARGS"
+	yum $YUM_ARGS
+	local rc=$?
+
+	log4 Unmounting $VE_ROOT/var/cache/yum
+	umount $VE_ROOT/var/cache/yum
+
+	HOME=$orig_HOME
+
+	return $rc
+}
+
+function yum_cleanup()
+{
+	log4 "Doing cleanup"
+	if mount | grep $VE_ROOT/var/cache/yum > /dev/null 2>&1; then
+		log4 Unmounting $VE_ROOT/var/cache/yum
+		umount $VE_ROOT/var/cache/yum
+	fi
+}

@@ -1,0 +1,47 @@
+#!/bin/bash
+# vim: ts=4 sw=4 ai noet
+# $Id$
+#
+# Copyright (C) 2008, Robert Nelson. Licensed under GPLv2.
+# By Robert Nelson.
+#
+
+test -n "$DEBUG_EXEC" && set -x
+
+TOOLDIR=/usr/share/vzpkg
+
+. ${TOOLDIR}/apt-functions
+
+log4 Started $0 $*
+
+trap apt_cleanup EXIT
+
+log4 Mounting $VE_ROOT/var/cache/apt/archives
+mount -o bind $TEMPLATE_DIR/archives $VE_ROOT/var/cache/apt/archives
+
+test -z `get_ve_var IP_ADDRESS` && NEED_IPADDR=1
+
+if test -n "$NEED_IPADDR"; then
+	VZPKG_IPADDR=`get_vz_var VZPKG_IPADDR` || abort "VZPKG_IPADDR missing from vz.conf"
+	VZPKG_DNS=`get_vz_var VZPKG_DNS` || abort "VZPKG_DNS missing from vz.conf"
+	VZPKG_SEARCH=`get_vz_var VZPKG_SEARCH`
+
+	test -n "$VZPKG_DNS" && DNS_ARGS=`echo "$VZPKG_DNS" | sed -e 's/[[:space:]]/ /g' -e 's/,/ --nameserver /g' -e 's/^/--nameserver /'`
+	test -n "$VZPKG_SEARCH" && SEARCH_ARGS=`echo "$VZPKG_SEARCH" | sed -e 's/[[:space:]]/ /g' -e 's/,/ --searchdomain /g' -e 's/^/--searchdomain /'`
+
+	$VZCTL set $VEID --ipadd $VZPKG_IPADDR $DNS_ARGS $SEARCH_ARGS --save
+fi
+
+$VZCTL exec $VEID apt-get -y update
+$VZCTL exec $VEID apt-get -y install $*
+
+if test -n "$NEED_IPADDR"; then
+	$VZCTL set $VEID --ipdel $VZPKG_IPADDR --save
+
+	rm -f $VE_ROOT/etc/resolv.conf
+fi
+
+log4 Unmounting $VE_ROOT/var/cache/apt/archives
+umount $VE_ROOT/var/cache/apt/archives
+
+exit $rc

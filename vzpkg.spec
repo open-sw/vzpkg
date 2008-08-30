@@ -1,5 +1,5 @@
-Name:		vzpkg
-Version:	3.0.0
+Name:		vzpkg2
+Version:	1.0.0
 Release:	1
 Summary:	OpenVZ template management tools
 Source:		%{name}-%{version}.tar.bz2
@@ -12,10 +12,6 @@ BuildArch:	noarch
 Requires:	sed, gawk, coreutils
 Requires:	procmail
 Requires:	vzctl >= 2.7.0-23
-Requires:	vzyum >= 2.4.0-5
-# NOTE this package actually requires vzrpm of some version installed,
-# but the version of vzrpm depends on OS template used.
-# Thus this requirement for vzrpmXX is put to OS template metadata instead.
 
 # New vzpkg does not work with old template metadata.
 Conflicts:	vztmpl-fedora-core-3 > 2.0
@@ -45,19 +41,28 @@ make DESTDIR=%buildroot install
 %files
 %defattr(-, root, root)
 %attr(755,root,root) %_bindir/vzpkgcache
-%attr(755,root,root) %_bindir/vzyum
-%attr(755,root,root) %_bindir/vzrpm
 %attr(755,root,root) %_bindir/vzpkgadd
 %attr(755,root,root) %_bindir/vzpkgrm
+%attr(755,root,root) %_bindir/vzpkgupd
 %attr(755,root,root) %_bindir/vzpkgls
 %attr(755,root,root) %_bindir/vzosname
 %dir %libdir
 %attr(644,root,root) %libdir/functions
 %attr(755,root,root) %libdir/cache-os
+%attr(644,root,root) %libdir/apt-functions
+%attr(755,root,root) %libdir/apt-add
+%attr(755,root,root) %libdir/apt-checkupdate
+%attr(755,root,root) %libdir/apt-install
+%attr(755,root,root) %libdir/apt-rm
+%attr(755,root,root) %libdir/apt-update
+%attr(644,root,root) %libdir/yum-functions
+%attr(755,root,root) %libdir/yum-add
+%attr(755,root,root) %libdir/yum-checkupdate
+%attr(755,root,root) %libdir/yum-install
+%attr(755,root,root) %libdir/yum-rm
+%attr(755,root,root) %libdir/yum-update
 %attr(755,root,root) %libdir/myinit.*
 %_mandir/man8/vzpkgcache.8.*
-%_mandir/man8/vzyum.8.*
-%_mandir/man8/vzrpm.8.*
 %doc README NEWS TODO COPYING
 
 %clean

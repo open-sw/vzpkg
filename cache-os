@@ -1,16 +1,41 @@
 #!/bin/bash
+# vim: ts=4 sw=4 ai noet
 # $Id: cache-os,v 1.18 2006/05/11 14:38:18 kir Exp $
 #
 # Copyright (C) 2003, 2004, 2005, 2006 by SWsoft. Licensed under GNU GPL.
 #
 # Creates/updates OS template cache.
+#
+# All scripts called by this script inherit the following environment variables:
+#
+# VZCTL
+#
+# OS_NAME
+# OS_VER
+# OS_ARCH
+# OS_SET
+#
+# TEMPLATE_DIR
+#
+# VEID
+# VE_PRIVATE
+# VE_ROOT
+#
+# In addition template scripts inherit the following functions:
+#
+# find_template_config_file
+#
 
-#DEBUG_LEVEL=5
+test -n "$DEBUG_EXEC" && set -x
+
 TOOLDIR=/usr/share/vzpkg
 
-
 . ${TOOLDIR}/functions
+
+export -f find_template_config_file
+
 VZCTL="$VZCTL --quiet --skiplock"
+export VZCTL
 
 log4 Started $0 $*
 
@@ -29,6 +54,7 @@ function cleanup()
 {
 	local vps=$1
 	log4 "Called cleanup($vps)"
+
 	log4 "Calling vzctl stop $vps"
 	$VZCTL stop $vps --fast
 	log4 "Calling vzctl umount $vps"
@@ -65,26 +91,30 @@ TEMPLATE=`get_vz_var TEMPLATE`
 
 OST=`ost2full $1` || abort "No such OS template: $1"
 set $OST
-OSNAME=$1
-OSVER=$2
-OSSET=$3
-OSARCH=$4
-TDIR=$5
-check_ost_exists $OSNAME $OSVER $OSSET $OSARCH || exit 1
+OS_NAME=$1
+OS_VER=$2
+OS_SET=$3
+OS_ARCH=$4
+TEMPLATE_DIR=$5
+check_ost_exists $OS_NAME $OS_VER $OS_SET $OS_ARCH || exit 1
 
-OSTEMPLATE="$OSNAME-$OSVER-$OSARCH-$OSSET"
-CACHE=$OSTEMPLATE.tar.gz
+OS_TEMPLATE="$OS_NAME-$OS_VER-$OS_ARCH-$OS_SET"
+
+export OS_NAME OS_VER OS_ARCH OS_SET
+export TEMPLATE_DIR
+
+CACHE=$OS_TEMPLATE.tar.gz
 CACHEDIR=`get_cache_dir`
-MARK64=`is_64bit $OSARCH`
+PACKAGER=`get_packager` || exit $?
 
-if test "x$REMOVE" != "x"; then
-	log3 "Removing OS template cache for $OSTEMPLATE template"
+if test "$REMOVE" != ""; then
+	log3 "Removing OS template cache for $OS_TEMPLATE template"
 	log4 "Cache file name: $CACHEDIR/$CACHE"
-	test -f $CACHEDIR/$CACHE || \
+	test -f "$CACHEDIR/$CACHE" || \
 		log2 "Cache file $CACHEDIR/$CACHE is not found!"
 	rm -f $CACHEDIR/$CACHE
 	# If there is a symlink (for older vzctl) remove it as well
-	test -L $TEMPLATE/$CACHE && rm -f $TEMPLATE/$CACHE
+	test -L "$TEMPLATE/$CACHE" && rm -f $TEMPLATE/$CACHE
 	exit 0
 fi
 
@@ -92,16 +122,21 @@ VEID=`find_lock_nearest_veid 100000` || abort "Can't find free VE ID"
 log4 "Using temporary VE $VEID"
 VE_PRIVATE=`get_vz_var VE_PRIVATE`
 VE_ROOT=`get_vz_var VE_ROOT`
-
+export VEID VE_PRIVATE VE_ROOT
 
 VECFG=$VECFGDIR/$VEID.conf
 VECFGSAMPLE=$VECFGDIR/ve-vps.basic.conf-sample
 # simple init - for initial VE startup, statically linked
-MYINIT=${TOOLDIR}/myinit.${OSARCH}
+case ${OS_ARCH} in
+i?86|x86)		MYINIT=${TOOLDIR}/myinit.i386;;
+amd64|x86_64)	MYINIT=${TOOLDIR}/myinit.x86_64;;
+ia64)			MYINIT=${TOOLDIR}/myinit.ia64;;
+*)				MYINIT=${TOOLDIR}/myinit.i386;;
+esac
 
 function terminate()
 {
-	log4 "\ncalling cleanup()"
+	log4 "Calling cleanup()"
 	cleanup $VEID
 }
 trap terminate EXIT
@@ -109,50 +144,36 @@ trap terminate EXIT
 set -u
 cp -f $VECFGSAMPLE $VECFG || abort "Can't copy VE config"
 echo "DISK_QUOTA=no" >> $VECFG
-echo "OSTEMPLATE=$OSTEMPLATE" >> $VECFG
+echo "OSTEMPLATE=$OS_TEMPLATE" >> $VECFG
 mkdir -p $VE_ROOT $VE_PRIVATE || abort "Can't create VE dirs"
 log4 Mounting VE private area
 $VZCTL mount $VEID || abort "Can't mount VE $VEID"
 
-test -f $CACHEDIR/$CACHE && log4 "File $CACHEDIR/$CACHE exists"
-
-# Set up PYTHONPATH for our vzyum
-PYTHONPATH=`get_rpm_pythonhome $TDIR`
-export PYTHONPATH
-log4 PYTHONPATH=$PYTHONPATH
-# Set LD_LIBRARY_PATH to access rpm libs
-set +u
-LD_LIBRARY_PATH=`get_rpmlib_path $TDIR`:$LD_LIBRARY_PATH
-set -u
-export LD_LIBRARY_PATH
-log4 LD_LIBRARY_PATH=$LD_LIBRARY_PATH
-
-YUM_CONF_FILE=`yum_conf $TDIR`
+test -f "$CACHEDIR/$CACHE" && log4 "File $CACHEDIR/$CACHE exists"
 
 # Check if we are going to update cache
-if test -f $CACHEDIR/$CACHE -a "x$FORCE" = "x"; then
-	log3 "Updating cache for $OSTEMPLATE OS template"
+if test -f "$CACHEDIR/$CACHE" -a "x$FORCE" = "x"; then
+	log3 "Updating cache for $OS_TEMPLATE OS template"
 	OPERATION="update"
 	log4 "Untarring $CACHEDIR/$CACHE"
-	export VE_PRVT=$VE_PRIVATE
-	export PRIVATE_TEMPLATE=$CACHEDIR/$CACHE
-	$VZLIB_SCRIPTDIR/vps-create || \
+	VE_PRVT=$VE_PRIVATE PRIVATE_TEMPLATE=$CACHEDIR/$CACHE $VZLIB_SCRIPTDIR/vps-create || \
 		abort "Failed to create a VE based on cache $CACHE"
 	# Check if updates are available
-	# We use $YUM not vzyum here as latter requires VE to be running
-	$YUM --installroot $VE_ROOT $YUM_CONF_FILE \
-		--vps=$VEID check-update
-	YUMEC=$?
-	if test $YUMEC -eq 0; then
+	script=$TOOLDIR/$PACKAGER-checkupdate
+	test -x "$script" || \
+		abort "Failed to find $script script"
+	$script
+	rc=$?
+	if test $rc -eq 0; then
 		log3 "No updates are available"
 		exit 0
-	elif test $YUMEC -eq 100; then
-		log3 "Updates are available - proceeding with update"
+	elif test $rc -eq 1; then
+		log3 "Updates may be available - proceeding with update"
 	else
-		abort "Command yum check-update failed with $YUMEC exit code"
+		abort "Command $script failed with $rc exit code"
 	fi
 else
-	log3 "Creating cache for $OSTEMPLATE OS template"
+	log3 "Creating cache for $OS_TEMPLATE OS template"
 	OPERATION="install"
 	# Fake init placed in order for VE to be able to start
 	mkdir $VE_ROOT/sbin || abort "Can't create dir $VE_ROOT/sbin"
@@ -161,45 +182,20 @@ else
 	mkdir $VE_ROOT/proc || abort "Can't create dir $VE_ROOT/proc"
 fi
 
-
 # Run setup-pre script
-call_template_script $TDIR $OPERATION-pre || \
+call_template_script $OPERATION-pre || \
 	abort "Script $OPERATION-pre failed"
 
 # Start VE now
 log4 Starting VE
 $VZCTL start $VEID || abort "Can't start VE $VEID"
 
+script=$TOOLDIR/$PACKAGER-$OPERATION
+test -x "$script" || abort "Failed to find $script script"
+$script || \
+	abort "Script $script failed"
 
-# install packages
-if test $OPERATION = 'install'; then
-	LIST=`get_packages $TDIR $OSSET`
-	YUM_CMD="install $LIST"
-	# install gpg keys
-	import_gpgkeys $TDIR
-elif test $OPERATION = 'update'; then
-	YUM_CMD="update"
-else
-	# this shouldn't happen
-	abort "Internal error: unknown OPERATION $OPERATION"
-fi
-
-# Dirty dirty hack for yum/rpm to read RPM macros from the file .rpmmacros
-# which resides in our template configuration directory. If you know a better
-# way of doing it, please enlighten me.
-XX_HOME=$HOME
-export HOME=$TDIR/config
-
-YUM_CMD="--installroot=$VE_ROOT --vps=$VEID $YUM_CONF_FILE -y $YUM_CMD"
-# -d $DEBUG_LEVEL
-log4 "Running $YUM $YUM_CMD"
-# FIXME1: We use $YUM not vzyum because latter requires OSTEMPLATE to be set.
-# FIXME2: We do set OSTEMPLATE, so what's the problem? Need to find out.
-$YUM $YUM_CMD || abort "yum failed with $? exit code"
-export HOME=$XX_HOME
-unset XX_HOME
-
-call_template_script $TDIR $OPERATION-post || \
+call_template_script $OPERATION-post || \
 	abort "Script $OPERATION-post failed"
 
 # Stop this VE
@@ -217,9 +213,7 @@ pushd $VE_PRIVATE > /dev/null
 log3 "Packing cache file $CACHE ... "
 mkdir -p $CACHEDIR
 tar --numeric-owner --exclude $CACHE -zcf $CACHE . || abort "tar failed"
-#pwd
-#ls -lh
-test -f $CACHEDIR/$CACHE && mv $CACHEDIR/$CACHE $CACHEDIR/$CACHE-old
+test -f "$CACHEDIR/$CACHE" && mv $CACHEDIR/$CACHE $CACHEDIR/$CACHE-old
 mv $CACHE $CACHEDIR
 
 CACHESIZE=`ls -lh $CACHEDIR/$CACHE | awk '{print $5}'`

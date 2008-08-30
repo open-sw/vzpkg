@@ -1,0 +1,49 @@
+#!/bin/bash
+# vim: ts=4 sw=4 ai noet
+# $Id$
+#
+# Copyright (C) 2008, Robert Nelson. Licensed under GPLv2.
+# By Robert Nelson.
+#
+
+test -n "$DEBUG_EXEC" && set -x
+
+TOOLDIR=/usr/share/vzpkg
+
+. ${TOOLDIR}/yum-functions
+
+log4 Started $0 $*
+
+YUM_CONF_FILE=`yum_conf` || exit $?
+
+trap yum_cleanup EXIT
+
+log4 Creating /var/log
+mkdir -p $VE_ROOT/var/log
+
+log4 Creating /var/lib/yum and /var/cache/yum
+mkdir -p $VE_ROOT/var/lib/yum
+mkdir -p $VE_ROOT/var/cache/yum
+
+log4 Creating /var/lib/rpm and /var/lock/rpm
+mkdir -p $VE_ROOT/var/lib/rpm
+mkdir -p $VE_ROOT/var/lock/rpm
+
+mkdir -p $VE_ROOT/dev
+mknod $VE_ROOT/dev/null c 1 3
+chmod 0666 $VE_ROOT/dev/null
+
+# install gpg keys
+import_gpgkeys
+
+# Returns list of packages to be installed into VE.
+file=`find_template_config_file $OS_SET.list` || \
+	abort "List of packages for $OS_SET not found!"
+
+LIST=`egrep -v '^#|^[[:space:]]*$' < $file` || exit $?
+
+YUM_ARGS="--installroot=$VE_ROOT $YUM_CONF_FILE -y install $LIST"
+
+run_yum || abort "yum failed with $? exit code"
+
+rm -f $VE_ROOT/var/lib/rpm/__db.0*

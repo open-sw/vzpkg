@@ -1,0 +1,31 @@
+#!/bin/bash
+# vim: ts=4 sw=4 ai noet
+# $Id$
+#
+# Copyright (C) 2008, Robert Nelson. Licensed under GPLv2.
+# By Robert Nelson.
+#
+
+test -n "$DEBUG_EXEC" && set -x
+
+TOOLDIR=/usr/share/vzpkg
+
+. ${TOOLDIR}/yum-functions
+
+log4 Started $0 $*
+
+YUM_CONF_FILE=`yum_conf $TEMPLATE_DIR`
+
+trap yum_cleanup EXIT
+
+YUM_ARGS="--installroot $VE_ROOT $YUM_CONF_FILE check-update"
+run_yum
+rc=$?
+
+if test $rc -eq 0; then
+	exit 0
+elif test $rc -eq 100; then
+	exit 1
+else
+	abort "Command yum check-update failed with $rc exit code"
+fi

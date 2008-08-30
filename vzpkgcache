@@ -1,9 +1,9 @@
 #!/bin/bash
-# $Id: vzpkgcache,v 1.6 2006/05/11 14:23:39 kir Exp $
+# $Id: vzpkgcache,v 1.5 2005/10/25 10:51:43 kir Exp $
 #
 # vzpkgcache - create cached tarball for OS packages.
 #
-# Copyright (C) 2005 by SWsoft. Licensed under GNU GPL.
+# Copyright (C) 2005 by SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
 
 TOOLDIR=/usr/share/vzpkg
