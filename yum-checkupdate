@@ -6,7 +6,7 @@
 # By Robert Nelson.
 #
 
-test -n "$DEBUG_EXEC" && set -x
+test -n "$DEBUG_EXEC" && set -o xtrace
 
 TOOLDIR=/usr/share/vzpkg
 
@@ -14,12 +14,7 @@ TOOLDIR=/usr/share/vzpkg
 
 log4 Started $0 $*
 
-YUM_CONF_FILE=`yum_conf $TEMPLATE_DIR`
-
-trap yum_cleanup EXIT
-
-YUM_ARGS="--installroot $VE_ROOT $YUM_CONF_FILE check-update"
-run_yum
+run_yum check-update
 rc=$?
 
 if test $rc -eq 0; then

@@ -9,6 +9,7 @@
 # All scripts called by this script inherit the following environment variables:
 #
 # VZCTL
+# VZCFG
 #
 # OS_NAME
 # OS_VER
@@ -24,6 +25,7 @@
 # In addition template scripts inherit the following functions:
 #
 # find_template_config_file
+# get_vz_var
 #
 
 test -n "$DEBUG_EXEC" && set -x
@@ -33,9 +35,12 @@ TOOLDIR=/usr/share/vzpkg
 . ${TOOLDIR}/functions
 
 export -f find_template_config_file
+export -f get_vz_var
 
 VZCTL="$VZCTL --quiet --skiplock"
-export VZCTL
+export VZCTL VZCFG VZP_LOGFILE
+
+export -f log log1 log2 log3 log4 log5
 
 log4 Started $0 $*
 
@@ -190,7 +195,7 @@ call_template_script $OPERATION-pre || \
 log4 Starting VE
 $VZCTL start $VEID || abort "Can't start VE $VEID"
 
-script=$TOOLDIR/$PACKAGER-$OPERATION
+script=$TOOLDIR/$PACKAGER-cache-$OPERATION
 test -x "$script" || abort "Failed to find $script script"
 $script || \
 	abort "Script $script failed"

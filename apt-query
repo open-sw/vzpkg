@@ -14,7 +14,19 @@ TOOLDIR=/usr/share/vzpkg
 
 log4 Started $0 $*
 
-$VZCTL exec $VEID apt-get -y update
-$VZCTL exec2 $VEID apt-get -y install $*
+CMD=$1
+shift
+
+PACKAGES=$*
+
+case $CMD in
+--installed)	ARGS='-W --showformat=\${package}-\${version}\\n';;
+--info)			ARGS='-s';;
+--files)		ARGS='-L';;
+--search)		ARGS='--search';;
+*)
+esac
+
+$VZCTL exec $VEID dpkg-query $ARGS $PACKAGES
 
 exit $?

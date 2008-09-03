@@ -14,6 +14,11 @@ TOOLDIR=/usr/share/vzpkg
 
 log4 Started $0 $*
 
-$VZCTL exec2 $VEID yum install $*
+rm -f $VE_ROOT/var/lib/rpm/__db.0*
 
-exit $?
+run_yum update
+rc=$?
+
+rm -f $VE_ROOT/var/lib/rpm/__db.0*
+
+exit $rc

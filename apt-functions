@@ -10,11 +10,3 @@ TOOLDIR=/usr/share/vzpkg
 
 . ${TOOLDIR}/functions
 
-function apt_cleanup()
-{
-	log4 "Doing cleanup"
-	if mount | grep $VE_ROOT/var/cache/apt/archives > /dev/null 2>&1; then
-		log4 Unmounting $VE_ROOT/var/cache/apt/archives
-		umount $VE_ROOT/var/cache/apt/archives
-	fi
-}

@@ -6,17 +6,13 @@
 # By Robert Nelson.
 #
 
-test -n "$DEBUG_EXEC" && set -x
+test -n "$DEBUG_EXEC" && set -o xtrace
 
 TOOLDIR=/usr/share/vzpkg
 
 . ${TOOLDIR}/yum-functions
 
 log4 Started $0 $*
-
-YUM_CONF_FILE=`yum_conf` || exit $?
-
-trap yum_cleanup EXIT
 
 log4 Creating /var/log
 mkdir -p $VE_ROOT/var/log
@@ -42,8 +38,6 @@ file=`find_template_config_file $OS_SET.list` || \
 
 LIST=`egrep -v '^#|^[[:space:]]*$' < $file` || exit $?
 
-YUM_ARGS="--installroot=$VE_ROOT $YUM_CONF_FILE -y install $LIST"
-
-run_yum || abort "yum failed with $? exit code"
+run_yum install yum $LIST || abort "yum failed with $? exit code"
 
 rm -f $VE_ROOT/var/lib/rpm/__db.0*

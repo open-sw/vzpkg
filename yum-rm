@@ -6,7 +6,7 @@
 # By Robert Nelson.
 #
 
-test -n "$DEBUG_EXEC" && set -x
+test -n "$DEBUG_EXEC" && set -o xtrace
 
 TOOLDIR=/usr/share/vzpkg
 
@@ -14,11 +14,6 @@ TOOLDIR=/usr/share/vzpkg
 
 log4 Started $0 $*
 
-rm -f $VE_ROOT/var/lib/rpm/__db.0*
+$VZCTL exec2 $VEID yum erase $*
 
-run_yum erase $*
-rc=$?
-
-rm -f $VE_ROOT/var/lib/rpm/__db.0*
-
-exit $rc
+exit $?

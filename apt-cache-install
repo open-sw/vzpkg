@@ -14,16 +14,9 @@ TOOLDIR=/usr/share/vzpkg
 
 log4 Started $0 $*
 
-trap apt_cleanup EXIT
-
-test ! -d $TEMPLATE_DIR/archives && mkdir $TEMPLATE_DIR/archives
-
 log4 Creating /var/cache/apt/archives and /var/cache/apt/archives/partial
 mkdir -p $VE_ROOT/var/cache/apt/archives
 mkdir -p $VE_ROOT/var/cache/apt/archives/partial
-
-log4 Mounting $VE_ROOT/var/cache/apt/archives
-mount -o bind $TEMPLATE_DIR/archives $VE_ROOT/var/cache/apt/archives
 
 file=`find_template_config_file $OS_SET.list` || \
 	abort "List of packages for $OS_SET not found!"
@@ -34,10 +27,14 @@ excludes=`echo \`sed -ne '/.*-$/s/-$/,/p' $file \` | sed -e 's/ //g' -e 's/,$//'
 test -n "$includes" && includes="--include=$includes"
 test -n "$excludes" && excludes="--exclude=$excludes"
 
+vzpkg_file=`find_template_config_file vzpkg.conf`
+
+if test -n "$vzpkg_file"; then
+	VZPKG_CACHE_HOST=`get_vz_var VZPKG_CACHE_HOST`
+	. $vzpkg_file
+fi
+
 debootstrap $includes $excludes --arch $OS_ARCH $OS_VER $VE_ROOT $APT_MIRROR
 rc=$?
-
-log4 Unmounting $VE_ROOT/var/cache/apt/archives
-umount $VE_ROOT/var/cache/apt/archives
 
 exit $rc

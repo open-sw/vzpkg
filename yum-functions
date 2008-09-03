@@ -13,9 +13,24 @@ TOOLDIR=/usr/share/vzpkg
 # Returns -c parameters needed for yum.
 function yum_conf()
 {
-	local cfg=`find_template_config_file yum.conf`
-	test -f "$cfg" || abort "yum repository config file yum.conf not found!"
-	echo "-c $cfg"
+	local vzpkg_file=`find_template_config_file vzpkg.conf`
+	local yum_conf_file=/var/tmp/yum.conf.$$
+
+	if test -n "$vzpkg_file"; then
+		VZPKG_CACHE_HOST=`get_vz_var VZPKG_CACHE_HOST`
+		. $vzpkg_file
+
+		if test -n "$YUM_CONF"; then
+			echo -e "$YUM_CONF" > $yum_conf_file
+		fi
+		unset VZPKG_CACHE_HOST
+	fi
+	if test -z "$YUM_CONF"; then
+		local cfg=`find_template_config_file yum.conf`
+		test -f "$cfg" || abort "yum repository config file yum.conf not found!"
+		cp "$cfg" $yum_conf_file
+	fi
+	echo "-c $yum_conf_file"
 }
 
 # Import gpgkeys from OS template's config/gpgkeys directory to the VE.
@@ -43,30 +58,39 @@ function run_yum()
 	local file=`find_template_config_file .rpmmacros`
 	test -n "$file" && HOME=`dirname $file` || HOME=$TEMPLATE_DIR/config
 
-	log4 Mounting $VE_ROOT/var/cache/yum
-	mount -o bind $TEMPLATE_DIR/yum-cache $VE_ROOT/var/cache/yum
-
 	YUM_CONF_FILE=`yum_conf` || exit $?
 
-	YUM_ARGS="--installroot=$VE_ROOT $YUM_CONF_FILE -y $*"
+	YUM_ARGS="--installroot=$VE_ROOT $YUM_CONF_FILE -y"
 
-	log4 "Running yum $YUM_ARGS"
-	yum $YUM_ARGS
+	log4 "Running yum $YUM_ARGS $*"
+	yum $YUM_ARGS $*
 	local rc=$?
 
-	log4 Unmounting $VE_ROOT/var/cache/yum
-	umount $VE_ROOT/var/cache/yum
+	rm -f /usr/tmp/yum.conf.$$
+	rm -rf $VE_ROOT/var/cache/yum/*
+	rm -rf $VE_ROOT/vz
 
 	HOME=$orig_HOME
 
 	return $rc
 }
 
-function yum_cleanup()
+function run_rpm()
 {
-	log4 "Doing cleanup"
-	if mount | grep $VE_ROOT/var/cache/yum > /dev/null 2>&1; then
-		log4 Unmounting $VE_ROOT/var/cache/yum
-		umount $VE_ROOT/var/cache/yum
-	fi
+	# Dirty dirty hack for yum/rpm to read RPM macros from the file .rpmmacros
+	# which resides in our template configuration directory. If you know a better
+	# way of doing it, please enlighten me.
+	local orig_HOME=$HOME
+	local file=`find_template_config_file .rpmmacros`
+	test -n "$file" && HOME=`dirname $file` || HOME=$TEMPLATE_DIR/config
+
+	RPM_ARGS="--root=$VE_ROOT"
+
+	log4 "Running rpm $RPM_ARGS"
+	rpm $RPM_ARGS $*
+	local rc=$?
+
+	HOME=$orig_HOME
+
+	return $rc
 }
