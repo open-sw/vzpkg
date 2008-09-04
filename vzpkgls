@@ -8,7 +8,7 @@
 # By Kir Kolyshkin.
 
 
-TOOLDIR=/usr/share/vzpkg
+TOOLDIR=/usr/share/vzpkg2
 #DEBUG_LEVEL=4
 
 . ${TOOLDIR}/functions

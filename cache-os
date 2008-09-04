@@ -30,7 +30,7 @@
 
 test -n "$DEBUG_EXEC" && set -x
 
-TOOLDIR=/usr/share/vzpkg
+TOOLDIR=/usr/share/vzpkg2
 
 . ${TOOLDIR}/functions
 

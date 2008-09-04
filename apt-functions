@@ -6,7 +6,7 @@
 # By Robert Nelson.
 #
 
-TOOLDIR=/usr/share/vzpkg
+TOOLDIR=/usr/share/vzpkg2
 
 . ${TOOLDIR}/functions
 

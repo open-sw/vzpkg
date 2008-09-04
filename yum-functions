@@ -6,7 +6,7 @@
 # By Robert Nelson.
 #
 
-TOOLDIR=/usr/share/vzpkg
+TOOLDIR=/usr/share/vzpkg2
 
 . ${TOOLDIR}/functions
 
@@ -67,7 +67,8 @@ function run_yum()
 	local rc=$?
 
 	rm -f /usr/tmp/yum.conf.$$
-	rm -rf $VE_ROOT/var/cache/yum/*
+	rm -rf $VE_ROOT/var/cache/yum/* $VE_ROOT/var/cache/yum/.gpg* 
+	rm -rf $VE_ROOT/var/log/yum.log
 	rm -rf $VE_ROOT/vz
 
 	HOME=$orig_HOME

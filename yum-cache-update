@@ -8,7 +8,7 @@
 
 test -n "$DEBUG_EXEC" && set -o xtrace
 
-TOOLDIR=/usr/share/vzpkg
+TOOLDIR=/usr/share/vzpkg2
 
 . ${TOOLDIR}/yum-functions
 

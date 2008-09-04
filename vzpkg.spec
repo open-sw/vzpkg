@@ -1,5 +1,5 @@
 Name:		vzpkg2
-Version:	1.0.0
+Version:	0.9.0
 Release:	1
 Summary:	OpenVZ template management tools
 Source:		%{name}-%{version}.tar.bz2
@@ -14,13 +14,12 @@ Requires:	procmail
 Requires:	vzctl >= 2.7.0-23
 
 # New vzpkg does not work with old template metadata.
-Conflicts:	vztmpl-fedora-core-3 > 2.0
-Conflicts:	vztmpl-fedora-core-4 > 2.0
-Conflicts:	vztmpl-centos-4 > 2.0
+Conflicts:	vzpkg
+Conflicts:	vztmpl-fedora-core-3
+Conflicts:	vztmpl-fedora-core-4
+Conflicts:	vztmpl-centos-4
 # Since vzpkg-3.0 it requires newer vzrpms
 # (the ones with dynamically linked python modules)
-Conflicts:	vzrpm43 < 4.3.3-13_nonptl.1.swsoft
-#Conflicts:	vzrpm44 < 
 
 %define libdir %_datadir/%name
 
@@ -44,21 +43,26 @@ make DESTDIR=%buildroot install
 %attr(755,root,root) %_bindir/vzpkgadd
 %attr(755,root,root) %_bindir/vzpkgrm
 %attr(755,root,root) %_bindir/vzpkgupd
+%attr(755,root,root) %_bindir/vzpkgquery
 %attr(755,root,root) %_bindir/vzpkgls
 %attr(755,root,root) %_bindir/vzosname
 %dir %libdir
 %attr(644,root,root) %libdir/functions
 %attr(755,root,root) %libdir/cache-os
 %attr(644,root,root) %libdir/apt-functions
-%attr(755,root,root) %libdir/apt-add
 %attr(755,root,root) %libdir/apt-checkupdate
-%attr(755,root,root) %libdir/apt-install
+%attr(755,root,root) %libdir/apt-cache-install
+%attr(755,root,root) %libdir/apt-cache-update
+%attr(755,root,root) %libdir/apt-add
+%attr(755,root,root) %libdir/apt-query
 %attr(755,root,root) %libdir/apt-rm
 %attr(755,root,root) %libdir/apt-update
 %attr(644,root,root) %libdir/yum-functions
-%attr(755,root,root) %libdir/yum-add
+%attr(755,root,root) %libdir/yum-cache-install
+%attr(755,root,root) %libdir/yum-cache-update
 %attr(755,root,root) %libdir/yum-checkupdate
-%attr(755,root,root) %libdir/yum-install
+%attr(755,root,root) %libdir/yum-add
+%attr(755,root,root) %libdir/yum-query
 %attr(755,root,root) %libdir/yum-rm
 %attr(755,root,root) %libdir/yum-update
 %attr(755,root,root) %libdir/myinit.*
