@@ -1,6 +1,6 @@
 Name:		vzpkg2
 Version:	0.9.0
-Release:	1
+Release:	1%{dist}
 Summary:	OpenVZ template management tools
 Source:		%{name}-%{version}.tar.bz2
 License:	GPL
