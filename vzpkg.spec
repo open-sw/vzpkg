@@ -38,7 +38,7 @@ inside Virtual Environments.
 make DESTDIR=%buildroot install
 
 %files
-%defattr(-, root, root)
+%defattr(755, root, root)
 %attr(755,root,root) %_bindir/vzpkgcache
 %attr(755,root,root) %_bindir/vzpkgadd
 %attr(755,root,root) %_bindir/vzpkgrm
@@ -47,25 +47,26 @@ make DESTDIR=%buildroot install
 %attr(755,root,root) %_bindir/vzpkgls
 %attr(755,root,root) %_bindir/vzosname
 %dir %libdir
+%defattr(755, root, root)
 %attr(644,root,root) %libdir/functions
-%attr(755,root,root) %libdir/cache-os
+%libdir/cache-os
 %attr(644,root,root) %libdir/apt-functions
-%attr(755,root,root) %libdir/apt-checkupdate
-%attr(755,root,root) %libdir/apt-cache-install
-%attr(755,root,root) %libdir/apt-cache-update
-%attr(755,root,root) %libdir/apt-add
-%attr(755,root,root) %libdir/apt-query
-%attr(755,root,root) %libdir/apt-rm
-%attr(755,root,root) %libdir/apt-update
+%libdir/apt-checkupdate
+%libdir/apt-cache-install
+%libdir/apt-cache-update
+%libdir/apt-add
+%libdir/apt-query
+%libdir/apt-rm
+%libdir/apt-update
 %attr(644,root,root) %libdir/yum-functions
-%attr(755,root,root) %libdir/yum-cache-install
-%attr(755,root,root) %libdir/yum-cache-update
-%attr(755,root,root) %libdir/yum-checkupdate
-%attr(755,root,root) %libdir/yum-add
-%attr(755,root,root) %libdir/yum-query
-%attr(755,root,root) %libdir/yum-rm
-%attr(755,root,root) %libdir/yum-update
-%attr(755,root,root) %libdir/myinit.*
+%libdir/yum-cache-install
+%libdir/yum-cache-update
+%libdir/yum-checkupdate
+%libdir/yum-add
+%libdir/yum-query
+%libdir/yum-rm
+%libdir/yum-update
+%libdir/myinit.*
 %_mandir/man8/vzpkgcache.8.*
 %doc README NEWS TODO COPYING
 
