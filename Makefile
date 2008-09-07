@@ -28,7 +28,7 @@ install-bin: $(BIN_FILES)
 install-lib: $(LIB_FILES)
 	mkdir -p $(DESTDIR)$(LIBDIR)
 	for f in $(LIB_FILES); do \
-		install -m 644 $$f $(DESTDIR)$(LIBDIR); \
+		install -m 755 $$f $(DESTDIR)$(LIBDIR); \
 	done
 
 install-myinit: install-lib
