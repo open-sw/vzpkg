@@ -15,7 +15,6 @@ test -z "$DEBUG_LEVEL"	&& DEBUG_LEVEL=3
 
 # Some handy definitions
 test -z "$VZCTL" && VZCTL=/usr/sbin/vzctl
-VZLOCKDIR=/vz/lock
 VECFGDIR_OLD=/etc/sysconfig/vz-scripts
 VZCFG_OLD=/etc/sysconfig/vz
 VECFGDIR=/etc/vz/conf
@@ -150,7 +149,8 @@ function call_template_script()
 #  $1 - VE ID
 function lock_ve()
 {
-	local ntries=0 file=$VZLOCKDIR/$1.lck warned=0
+	local ntries=0 warned=0
+	local file=`get_vz_var LOCKDIR`/$1.lck
 	while [ $ntries -le 3 ]; do
 	ntries=$[ntries+1]
 	if lockfile -1 -r1 $file 2>/dev/null; then
@@ -180,14 +180,15 @@ function lock_ve()
 #  $1 - VE ID
 function unlock_ve()
 {
-	local file=$VZLOCKDIR/$1.lck
+	local file=`get_vz_var LOCKDIR`/$1.lck
 	# log4 Unlocking VE $1
 	rm -f $file
 }
 
 function lock_ve_silent()
 {
-	local ntries=0 file=$VZLOCKDIR/$1.lck
+	local ntries=0
+	local file=`get_vz_var LOCKDIR`/$1.lck
 	while [ $ntries -le 3 ]; do
 	ntries=$[ntries+1]
 	if lockfile -1 -r1 $file 2>/dev/null; then
@@ -263,8 +264,8 @@ function get_vz_var()
 	# We have defaults for two most requested things
 	if test -z "$value"; then
 		case $1 in
-		PACKAGES)
-			value='/vz/packages'
+		LOCKDIR)
+			value='/vz/lock'
 			;;
 		TEMPLATE)
 			value='/vz/template'
