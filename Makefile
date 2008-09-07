@@ -15,6 +15,8 @@ MYINIT_FILES = myinit.i386 myinit.x86_64 myinit.ia64
 
 all:
 
+clean:
+
 install: install-bin install-lib install-myinit install-man
 
 install-bin: $(BIN_FILES)

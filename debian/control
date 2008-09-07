@@ -1,0 +1,12 @@
+Source: vzpkg2
+Section: admin
+Priority: optional
+Maintainer: Robert Nelson <robertn@the-nelsons.org>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: vzpkg2
+Architecture: all
+Description: OpenVZ template management tools
+ OpenVZ template management tools are used for software installation
+ inside Virtual Environments.

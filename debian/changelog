@@ -1,0 +1,5 @@
+vzpkg2 (0.9.1) unstable; urgency=low
+
+  * Initial Release on Debian.
+
+ -- Robert Nelson <robertn@the-nelsons.org>  Sat,  6 Sep 2008 17:40:39 -0700

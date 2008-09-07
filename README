@@ -2,15 +2,11 @@ vzpkg - OpenVZ VE template management tools
 ============================================
 
 	This is a collection of scripts aimed at VE template management.
-	It mostly deals with creation of OS template caches. Also included
-	are two handy utilities - vzyum and vzrpm.
+	It mostly deals with creation of OS template caches.
 
 
 Requirements
 ------------
-	vzyum >= 2.4.0
-
-	Also, different OS templates requires different vzrpm versions.
 
 
 Installation
@@ -27,4 +23,5 @@ Usage
 Copyright
 ---------
 	Copyright (C) 2003-2006 by SWsoft. All rights reserved.
+	Copyright (C) 2008 by Robert Nelson. All rights reserved.
 	For the licensing terms, see COPYING file.
