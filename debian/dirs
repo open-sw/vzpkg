@@ -1,5 +1,5 @@
 usr/bin
 usr/share/vzpkg2
 usr/man/man8
-vz/template
-vz/template/cache
+var/lib/vz/template
+var/lib/vz/template/cache

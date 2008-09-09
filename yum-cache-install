@@ -14,6 +14,14 @@ TOOLDIR=/usr/share/vzpkg2
 
 log4 Started $0 $*
 
+# This is a workaround for a buggy rpm install in Debian etch.
+log4 Creating /var/lib/rpm in HN
+test -d /var/lib/rpm || {
+	mkdir /var/lib/rpm
+	chown rpm:rpm /var/lib/rpm
+	chmod 0755 /var/lib/rpm
+}
+
 log4 Creating /var/log
 mkdir -p $VE_ROOT/var/log
 

@@ -1,3 +1,13 @@
+vzpkg2 (0.9.2) unstable; urgency=low
+
+  * Fix bogus create of /vz/template on Debian.
+
+  * Create /var/lib/rpm if necessary work around Debian install bug.
+
+  * Do a filesystem sync before creating tarball to eliminate tar warnings.
+
+ -- Robert Nelson <robertn@the-nelsons.org>  Sat,  6 Sep 2008 17:40:39 -0700
+
 vzpkg2 (0.9.1) unstable; urgency=low
 
   * Initial Release on Debian.
