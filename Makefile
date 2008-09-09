@@ -48,7 +48,7 @@ install-man8: $(MAN8_FILES)
 tar:
 	(VERSION=`awk '/Version:/{print $$2}' < vzpkg.spec` && \
 	rm -f ../vzpkg2-$$VERSION; ln -sf `pwd` ../vzpkg2-$$VERSION && \
-	tar --directory ..  --exclude CVS --exclude .git --exclude \*.tar.bz2 -cvhjf vzpkg2-$$VERSION.tar.bz2 vzpkg2-$$VERSION; \
+	tar --directory ..  --exclude CVS --exclude .git --exclude \*.tar.bz2 -cvhjf ../vzpkg2-$$VERSION.tar.bz2 vzpkg2-$$VERSION; \
 	rm -f ../vzpkg2-$$VERSION)
 
 .PHONY: all install install-bin install-lib install-myinit install-man install-man8 tar
