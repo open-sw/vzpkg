@@ -1,6 +1,9 @@
+NAME    = vzpkg2
+VERSION = 0.9.2
+
 BINDIR  = /usr/bin
 SBINDIR = /usr/sbin
-LIBDIR  = /usr/share/vzpkg2
+LIBDIR  = /usr/share/$(NAME)
 MANDIR  = /usr/share/man
 MAN8DIR = $(MANDIR)/man8
 
@@ -12,6 +15,20 @@ LIB_FILES    = functions cache-os \
 	yum-add yum-query yum-rm yum-update
 MAN8_FILES   = man/vzpkgcache.8
 MYINIT_FILES = myinit.i386 myinit.x86_64 myinit.ia64
+
+SRPMDIR:=$(shell rpm --eval '%{_srcrpmdir}')
+RPMDIR:=$(shell rpm --eval '%{_rpmdir}')
+
+DESTDIR:=$(shell pwd)/../dist
+
+$(DESTDIR):
+	test -d $@ || mkdir $@
+
+$(DESTDIR)/debian: $(DESTDIR)
+	test -d $@ || mkdir $@
+
+$(DESTDIR)/$(NAME): $(DESTDIR)
+	test -d $@ || mkdir $@
 
 all:
 
@@ -45,11 +62,20 @@ install-man8: $(MAN8_FILES)
 		install -m 644 $$f $(DESTDIR)$(MAN8DIR); \
 	done
 
-tar:
-	(VERSION=`awk '/Version:/{print $$2}' < vzpkg.spec` && \
-	rm -f ../vzpkg2-$$VERSION; ln -sf `pwd` ../vzpkg2-$$VERSION && \
-	tar --directory ..  --exclude CVS --exclude .git --exclude \*.tar.bz2 -cvhjf ../vzpkg2-$$VERSION.tar.bz2 vzpkg2-$$VERSION; \
-	tar --directory ..  --exclude CVS --exclude .git --exclude \*.tar.bz2 -cvhzf ../vzpkg2-$$VERSION.tar.gz vzpkg2-$$VERSION; \
-	rm -f ../vzpkg2-$$VERSION)
+tar: $(DESTDIR)/$(NAME)
+	sed -e "s/@@VERSION@@/$(VERSION)/" < vzpkg.spec.in > vzpkg.spec; \
+	rm -f ../$(NAME)-$(VERSION); ln -sf `pwd` ../$(NAME)-$(VERSION) && \
+	tar --directory ..  --exclude CVS --exclude .git --exclude \*.tar.bz2 -cvhjf $(DESTDIR)/$(NAME)/$(NAME)-$(VERSION).tar.bz2 $(NAME)-$(VERSION); \
+	tar --directory ..  --exclude CVS --exclude .git --exclude \*.tar.bz2 -cvhzf $(DESTDIR)/$(NAME)/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION); \
+	rm -f ../$(NAME)-$(VERSION)
 
-.PHONY: all install install-bin install-lib install-myinit install-man install-man8 tar
+rpms: tar
+	rpmbuild -ta $(DESTDIR)/$(NAME)/$(NAME)-$(VERSION).tar.bz2
+	mv $(SRPMDIR)/$(NAME)-*$(VERSION)*.src.rpm $(DESTDIR)/$(NAME)
+	mv $(RPMDIR)/noarch/$(NAME)-*$(VERSION)*.noarch.rpm $(DESTDIR)/$(NAME)
+
+debs: $(DESTDIR)/debian
+	fakeroot dpkg-buildpackage -I.git -us -uc
+	mv ../$(NAME)*_$(VERSION)* $(DESTDIR)/debian
+
+.PHONY: all install install-bin install-lib install-myinit install-man install-man8 tar debs
