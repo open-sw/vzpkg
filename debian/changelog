@@ -1,3 +1,8 @@
+vzpkg2 (0.9.3) unstable; urgency=low
+  * Fix intermittent problem with tar failing due to building archive in current directory.
+
+ -- Robert Nelson <robertn@the-nelsons.org>  Sun, 14 Sep 2008 19:13:35 -0700
+
 vzpkg2 (0.9.2) unstable; urgency=low
 
   * Fix bogus create of /vz/template on Debian.

@@ -1,5 +1,5 @@
 Name:		vzpkg2
-Version:	0.9.2
+Version:	0.9.3
 Release:	1
 Summary:	OpenVZ template management tools
 Source:		%{name}-%{version}.tar.bz2
@@ -75,6 +75,9 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Sep 14 2008 Robert Nelson <robertn@the-nelsons.org> 0.9.3
+  - Fix intermittent problem with tar failing due to building archive in current directory.
+
 * Tue Sep  9 2008 Robert Nelson <robertn@the-nelsons.org> 0.9.2
   - Derived from OpenVZ vzpkg.
 
