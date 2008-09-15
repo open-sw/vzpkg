@@ -217,9 +217,12 @@ log4 vzctl exit code $?
 pushd $VE_PRIVATE > /dev/null
 log3 "Packing cache file $CACHE ... "
 mkdir -p $CACHEDIR
-tar --numeric-owner --exclude $CACHE -zcf $CACHE . || abort "tar failed"
 test -f "$CACHEDIR/$CACHE" && mv $CACHEDIR/$CACHE $CACHEDIR/$CACHE-old
-mv $CACHE $CACHEDIR
+tar --numeric-owner -zcf $CACHEDIR/$CACHE . || {
+	rm $CACHEDIR/$CACHE
+	test -f $CACHEDIR/$CACHE-old && mv $CACHEDIR/$CACHE-old $CACHEDIR/$CACHE
+	abort "tar failed"
+}
 
 CACHESIZE=`ls -lh $CACHEDIR/$CACHE | awk '{print $5}'`
 
