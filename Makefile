@@ -6,6 +6,7 @@ BINDIR  = /usr/bin
 SBINDIR = /usr/sbin
 LIBDIR  = /usr/share/$(NAME)
 MANDIR  = /usr/share/man
+MAN5DIR = $(MANDIR)/man5
 MAN8DIR = $(MANDIR)/man8
 
 BIN_FILES    = vzpkgcache vzpkgadd vzpkgrm vzpkgupd vzpkgquery vzpkgls vzosname
@@ -15,6 +16,7 @@ LIB_FILES    = functions cache-os \
 	yum-cache-install yum-cache-update yum-checkupdate yum-functions \
 	yum-add yum-query yum-rm yum-update
 CONFIG_FILES = vzpkg.conf
+MAN5_FILES   = man/vzpkg.conf.5
 MAN8_FILES   = man/vzpkgcache.8
 MYINIT_FILES = myinit.i386 myinit.x86_64 myinit.ia64
 
@@ -61,8 +63,14 @@ install-myinit: install-lib
 		install -m 755 $$f $(DESTDIR)$(LIBDIR); \
 	done
 
-install-man: install-man8
+install-man: install-man5 install-man8
 	mkdir -p $(DESTDIR)$(MANDIR)
+
+install-man5: $(MAN5_FILES)
+	mkdir -p $(DESTDIR)$(MAN5DIR)
+	for f in $(MAN5_FILES); do \
+		install -m 644 $$f $(DESTDIR)$(MAN5DIR); \
+	done
 
 install-man8: $(MAN8_FILES)
 	mkdir -p $(DESTDIR)$(MAN8DIR)

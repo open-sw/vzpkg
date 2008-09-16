@@ -68,7 +68,7 @@ make DESTDIR=%buildroot install
 %libdir/yum-update
 %libdir/myinit.*
 %config %_sysconfdir/vz/vzpkg.conf
-%_mandir/man5/vzpkg,conf.5.*
+%_mandir/man5/vzpkg.conf.5.*
 %_mandir/man8/vzpkgcache.8.*
 %doc README NEWS TODO COPYING
 
