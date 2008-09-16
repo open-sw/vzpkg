@@ -1,4 +1,4 @@
-.TH vzpkg 5 "15 Sep 2008" "vzpkg(5)" "OpenVZ"
+.TH vzpkg 5 "Sep 15, 2008" "vzpkg(5)" "OpenVZ"
 .SH NAME
 vzpkg \- vzpkg configuration files for OpenVZ
 .SH SYNOPSIS
@@ -12,64 +12,76 @@ vzpkg \- vzpkg configuration files for OpenVZ
 .SH DESCRIPTION
 These are the configuration files for the vzpkg tools of OpenVZ.
 
-They are processed in the order listed above.  This means that if the same variable
-is placed in multiple files then the later occurances override the earlier ones.
+They are processed in the order listed above.  This means that if the same 
+variable is placed in multiple files then the later occurances override the 
+earlier ones.
 
 They consist of lines in the form
 .PP
 \fBPARAMETER\fR="\fIvalue\fR"
 .PP
 All parameter names and values are case\-sensitive.
-Quotes surrounding \fIvalue\fR are required if value contains spaces, and
-are optional otherwise. Extra spaces are not allowed. All unrecognized lines
-will be ignored.
+Quotes surrounding \fIvalue\fR are required if value contains spaces or 
+new\-lines, and are optional otherwise. Extra spaces outside of the quotes 
+are not allowed. All unused variable assignments are ignored.
+
+These files are processed using the shell and must only contain valid shell 
+commands.
 .SS Global parameters
 .PP
-These are normally only specified in the global /etc/vz/vzpkg.conf file.  In some cases,
-it may be desirable to override the VZPKG_CACHE_HOST for one or more operating systems if
-you have multiple pkg\-cacher servers or use some other caching server or local mirrors.
+These are normally only specified in the global /etc/vz/vzpkg.conf file.  In 
+some cases, it may be desirable to override the VZPKG_CACHE_HOST for one or 
+more operating system templates if you have multiple pkg\-cacher servers or 
+use some other caching server or local mirrors.
 
 .IP \fBVZPKG_CACHE_HOST\fR=\fIhostname\fR:\fIport\fR
-Vzpkg is designed to be used with pkg\-cacher, the Caching Transparent HTTP Proxy.
-It can run on the Hardware Node (HN) or any other server.  The templates
-designed to work with vzpkg assume that there is one instance of pkg\-cacher on the
-network and this parameter specifies the \fIhostname\fR and \fIport\fR used to access it.
+Vzpkg is designed to be used with pkg\-cacher, the Caching Transparent HTTP 
+Proxy.  It can be installed on the Hardware Node (HN) or any other server.  
+The templates designed to work with vzpkg assume that there is one instance 
+of pkg\-cacher on the network and this parameter specifies the \fIhostname\fR 
+and \fIport\fR used to access it.
 
-During installation this is set to the hostname of the HN and pkg\-cacher default port.
+During installation this is set to the hostname of the HN and pkg\-cacher 
+default port.
 
 .IP "\fBVZPKG_IPADDR\fR=\fIipaddress\fR"
 This is a IP address assigned to the container while a cached template is being
 upgraded.
 .IP \fBVZPKG_SEARCH\fR=\fIname1[,name2,...]\fR
-This is the list of domain suffixes used by the container while a cached template is being
-upgraded.
+This is the list of domain suffixes used by the container while a cached 
+template is being upgraded.
 .IP "\fBVZPKG_DNS\fR=\fIipaddress1[,ipaddress2,...]\fR
-This is the list of DNS servers used by the container while a cached template is being
-upgraded.
+This is the list of DNS servers used by the container while a cached template 
+is being upgraded.
 
 .SS Apt\-based distribution parameters
-Debian and Ubuntu use apt for managing packages.  These parameters are used to configure
-the default locations from where packages are downloaded.  These are usually different for
-each operating system template.
+Debian and Ubuntu use apt for managing packages.  These parameters are used to 
+configure the default locations from where packages are downloaded.  These are
+usually different for each operating system template.
 .IP "\fBAPT_MIRROR\fR=\fIurl\fR"
-This overrides the default location that debootstrap uses to download the packages.  
-The templates set this to the url for the pkg\-cacher server.  If it isn't specified then
-the servers hard\-wired into debootstrap will be used.
+This overrides the default location that debootstrap uses to download the 
+packages.  The templates set this to the url for the pkg\-cacher server using
+the VZPKG_CACHE_HOST variable.
+
+If it isn't specified then the servers hard\-wired into debootstrap will be
+used.
 .IP "\fBAPT_SOURCES\fR=\fIquoted multi\-line string\fR"
-If this value is specified then the operating system supplied sources.list is disabled and this 
-string becomes the file that is used instead.  Refer to the documentation for sources.list for
-information on the contents.
+If this value is specified then the operating system supplied sources.list is 
+disabled and this string becomes the file that is used instead.  Refer to the
+documentation for sources.list provided by the operating system for information
+on the contents.
 
 .SS Yum\-based distribution parameters
-RedHat Enterprise and Fedora use yum for managing packages.  These parameters are used to configure
-the default locations from where packages are downloaded.  These are usually different for
-each operating system template.
+RedHat Enterprise and Fedora use yum for managing packages.  These parameters 
+are used to configure the default locations from where packages are downloaded.
+These are usually different for each operating system template.
 .IP "\fBYUM_CONF\fR=\fIquoted multi\-line string\fR"
-This becomes the yum.conf file used during template creation and upgrade.  It's content is the 
-same as the documented yum.conf.
+This becomes the yum.conf file used during template creation and upgrade.
+It's content is the same as the operating system documented yum.conf.
 .IP "\fBYUM_REPO\fR=\fIquoted multi\-line string\fR"
-If this value is specified then the operating system supplied repository information is disabled and 
-this string becomes the file that is used instead.  Refer to the documentation for yum.conf for
+If this value is specified then the operating system supplied repository 
+information is disabled and this string becomes the file that is used instead.
+Refer to the documentation for yum.conf supplied with the operating system for
 information on the contents.
 
 .PP
