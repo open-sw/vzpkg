@@ -18,17 +18,17 @@ clean:
 	-$(MAKE) clean
 	dh_clean 
 
-install:
+binary-arch:
+	dh_testdir
+	dh_testroot
+
+# Build architecture-independent files here.
+binary-indep: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
 	$(MAKE) DESTDIR=$(CURDIR)/debian/vzpkg2 install
-
-# Build architecture-independent files here.
-binary: build install
-	dh_testdir
-	dh_testroot
 	dh_installchangelogs
 	dh_installdocs
 	dh_install
@@ -40,4 +40,6 @@ binary: build install
 	dh_md5sums
 	dh_builddeb
 
-.PHONY: build clean binary install
+binary: binary-arch binary-indep
+
+.PHONY: build clean binary binary-arch binary-indep
