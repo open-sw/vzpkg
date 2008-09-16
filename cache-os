@@ -35,6 +35,7 @@ TOOLDIR=/usr/share/vzpkg2
 . ${TOOLDIR}/functions
 
 export -f find_template_config_file
+export -f read_vzpkg_conf
 export -f get_vz_var
 
 VZCTL="$VZCTL --quiet --skiplock"

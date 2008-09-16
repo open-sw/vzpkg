@@ -19,6 +19,7 @@ VECFGDIR_OLD=/etc/sysconfig/vz-scripts
 VZCFG_OLD=/etc/sysconfig/vz
 VECFGDIR=/etc/vz/conf
 VZCFG=/etc/vz/vz.conf
+VZLIB64_SCRIPTDIR=/usr/lib64/vzctl/scripts
 VZLIB_SCRIPTDIR=/usr/lib/vzctl/scripts
 ARCHES="i386 i586 i686 amd64 x86_64 ia64 x86"
 
@@ -29,6 +30,9 @@ fi
 if test ! -f "$VZCFG"; then
 	VZCFG=$VZCFG_OLD
 fi
+
+# Find vzctl scripts
+test -d "$VZLIB64_SCRIPTDIR" && VZLIB_SCRIPTDIR=$VZLIB64_SCRIPTDIR
 
 # Handy functions
 
@@ -486,4 +490,12 @@ function get_packager()
 	test -z "$packager_file" -o ! -f "$packager_file" && abort "File $packager_file not found!"
 	local packager=`cat $packager_file`
 	echo -n $packager
+}
+
+function read_vzpkg_conf()
+{
+	test -f /etc/vz/vzpkg.conf && source /etc/vz/vzpkg.conf
+	test -f $TEMPLATE_DIR/../../config/vzpkg.conf && source $TEMPLATE_DIR/../../config/vzpkg.conf
+	test -f $TEMPLATE_DIR/../config/vzpkg.conf && source $TEMPLATE_DIR/../config/vzpkg.conf
+	test -f $TEMPLATE_DIR/config/vzpkg.conf && source $TEMPLATE_DIR/config/vzpkg.conf
 }

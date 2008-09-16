@@ -39,13 +39,13 @@ make DESTDIR=%buildroot install
 
 %files
 %defattr(755, root, root)
-%attr(755,root,root) %_bindir/vzpkgcache
-%attr(755,root,root) %_bindir/vzpkgadd
-%attr(755,root,root) %_bindir/vzpkgrm
-%attr(755,root,root) %_bindir/vzpkgupd
-%attr(755,root,root) %_bindir/vzpkgquery
-%attr(755,root,root) %_bindir/vzpkgls
-%attr(755,root,root) %_bindir/vzosname
+%_bindir/vzpkgcache
+%_bindir/vzpkgadd
+%_bindir/vzpkgrm
+%_bindir/vzpkgupd
+%_bindir/vzpkgquery
+%_bindir/vzpkgls
+%_bindir/vzosname
 %dir %libdir
 %defattr(755, root, root)
 %attr(644,root,root) %libdir/functions
@@ -67,8 +67,12 @@ make DESTDIR=%buildroot install
 %libdir/yum-rm
 %libdir/yum-update
 %libdir/myinit.*
+%_sysconfdir/vz/vzpkg.conf
 %_mandir/man8/vzpkgcache.8.*
 %doc README NEWS TODO COPYING
+
+%post
+sed -i -e 's/@@hostname@@/'`hostname`'/' %_sysconfdir/vz/vzpkg.conf
 
 %clean
 test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT

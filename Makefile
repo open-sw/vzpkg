@@ -1,6 +1,7 @@
 NAME    = vzpkg2
 VERSION = 0.9.3
 
+ETCDIR = /etc/vz
 BINDIR  = /usr/bin
 SBINDIR = /usr/sbin
 LIBDIR  = /usr/share/$(NAME)
@@ -13,6 +14,7 @@ LIB_FILES    = functions cache-os \
 	apt-add apt-query apt-rm apt-update \
 	yum-cache-install yum-cache-update yum-checkupdate yum-functions \
 	yum-add yum-query yum-rm yum-update
+CONFIG_FILES = vzpkg.conf
 MAN8_FILES   = man/vzpkgcache.8
 MYINIT_FILES = myinit.i386 myinit.x86_64 myinit.ia64
 
@@ -34,7 +36,13 @@ all:
 
 clean:
 
-install: install-bin install-lib install-myinit install-man
+install: install-config install-bin install-lib install-myinit install-man
+
+install-config: $(CONFIG_FILES)
+	mkdir -p $(DESTDIR)$(ETCDIR)
+	for f in $(CONFIG_FILES); do \
+		install -m 644 $$f $(DESTDIR)$(ETCDIR); \
+	done
 
 install-bin: $(BIN_FILES)
 	mkdir -p $(DESTDIR)$(BINDIR)

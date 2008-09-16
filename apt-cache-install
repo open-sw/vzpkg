@@ -27,12 +27,7 @@ excludes=`echo \`sed -ne '/.*-$/s/-$/,/p' $file \` | sed -e 's/ //g' -e 's/,$//'
 test -n "$includes" && includes="--include=$includes"
 test -n "$excludes" && excludes="--exclude=$excludes"
 
-vzpkg_file=`find_template_config_file vzpkg.conf`
-
-if test -n "$vzpkg_file"; then
-	VZPKG_CACHE_HOST=`get_vz_var VZPKG_CACHE_HOST`
-	. $vzpkg_file
-fi
+read_vzpkg_conf
 
 debootstrap $includes $excludes --arch $OS_ARCH $OS_VER $VE_ROOT $APT_MIRROR
 rc=$?

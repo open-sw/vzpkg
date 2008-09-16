@@ -9,44 +9,24 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-
-
-
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
-	# Add here commands to configure the package.
-	touch configure-stamp
-
-
-build: build-stamp
-
-build-stamp: configure-stamp 
-	dh_testdir
-	# Add here commands to compile the package.
-	$(MAKE)
-	touch $@
+build:
 
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp configure-stamp
 	# Add here commands to clean up after the build process.
 	-$(MAKE) clean
-
 	dh_clean 
 
-install: build
+install:
 	dh_testdir
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-	# Add here commands to install the package into debian/vzpkg2.
 	$(MAKE) DESTDIR=$(CURDIR)/debian/vzpkg2 install
 
-
 # Build architecture-independent files here.
-binary-indep: build install
+binary: build install
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs
@@ -60,5 +40,4 @@ binary-indep: build install
 	dh_md5sums
 	dh_builddeb
 
-binary: binary-indep
-.PHONY: build clean binary-indep binary-arch binary install configure
+.PHONY: build clean binary install

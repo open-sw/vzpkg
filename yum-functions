@@ -13,19 +13,13 @@ TOOLDIR=/usr/share/vzpkg2
 # Returns -c parameters needed for yum.
 function yum_conf()
 {
-	local vzpkg_file=`find_template_config_file vzpkg.conf`
 	local yum_conf_file=/var/tmp/yum.conf.$$
 
-	if test -n "$vzpkg_file"; then
-		VZPKG_CACHE_HOST=`get_vz_var VZPKG_CACHE_HOST`
-		. $vzpkg_file
+	read_vzpkg_conf
 
-		if test -n "$YUM_CONF"; then
-			echo -e "$YUM_CONF" > $yum_conf_file
-		fi
-		unset VZPKG_CACHE_HOST
-	fi
-	if test -z "$YUM_CONF"; then
+	if test -n "$YUM_CONF"; then
+		echo "$YUM_CONF" > $yum_conf_file
+	else
 		local cfg=`find_template_config_file yum.conf`
 		test -f "$cfg" || abort "yum repository config file yum.conf not found!"
 		cp "$cfg" $yum_conf_file

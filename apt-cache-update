@@ -16,10 +16,11 @@ log4 Started $0 $*
 
 test -z `get_ve_var IP_ADDRESS` && NEED_IPADDR=1
 
+read_vzpkg_conf
+
 if test -n "$NEED_IPADDR"; then
-	VZPKG_IPADDR=`get_vz_var VZPKG_IPADDR` || abort "VZPKG_IPADDR missing from vz.conf"
-	VZPKG_DNS=`get_vz_var VZPKG_DNS` || abort "VZPKG_DNS missing from vz.conf"
-	VZPKG_SEARCH=`get_vz_var VZPKG_SEARCH`
+	test -n $VZPKG_IPADDR || abort "VZPKG_IPADDR missing from vzpkg.conf"
+	test -n $VZPKG_DNS || abort "VZPKG_DNS missing from vzpkg.conf"
 
 	test -n "$VZPKG_DNS" && DNS_ARGS=`echo "$VZPKG_DNS" | sed -e 's/[[:space:]]/ /g' -e 's/,/ --nameserver /g' -e 's/^/--nameserver /'`
 	test -n "$VZPKG_SEARCH" && SEARCH_ARGS=`echo "$VZPKG_SEARCH" | sed -e 's/[[:space:]]/ /g' -e 's/,/ --searchdomain /g' -e 's/^/--searchdomain /'`
