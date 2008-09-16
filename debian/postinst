@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        sed -i -e 's/@@hostname@@/'`hostname`'/' %_sysconfdir/vz/vzpkg.conf
+        sed -i -e 's/@@hostname@@/'`hostname`'/' /etc/vz/vzpkg.conf
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
