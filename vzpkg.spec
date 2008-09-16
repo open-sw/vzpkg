@@ -80,6 +80,15 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Sep 16 2008 Robert Nelson <robertn@the-nelsons.org> 0.9.4
+  - Use vzpkg.conf for global settings rather than vz.conf.
+  - Use correct scripts directory on 64 bit systems
+  - Change processing of vzpkg.conf files to allow more specific ones to override
+    values from less specific ones.
+  - Automatically set VZPKG_CACHE_HOST during install.
+  - Add manual page for vzpkg.conf.
+  - Update vzpkgcache manual page.
+
 * Tue Sep 14 2008 Robert Nelson <robertn@the-nelsons.org> 0.9.3
   - Fix intermittent problem with tar failing due to building archive in current directory.
 

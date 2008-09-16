@@ -1,3 +1,14 @@
+vzpkg2 (0.9.4) unstable; urgency=low
+  * Use vzpkg.conf for global settings rather than vz.conf.
+  * Use correct scripts directory on 64 bit systems
+  * Change processing of vzpkg.conf files to allow more specific ones to override
+    values from less specific ones.
+  * Automatically set VZPKG_CACHE_HOST during install.
+  * Add manual page for vzpkg.conf.
+  * Update vzpkgcache manual page.
+
+ -- Robert Nelson <robertn@the-nelsons.org>  Tue, 16 Sep 2008 09:36:12 -0700
+
 vzpkg2 (0.9.3) unstable; urgency=low
   * Fix intermittent problem with tar failing due to building archive in current directory.
 
