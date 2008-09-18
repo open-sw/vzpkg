@@ -498,4 +498,5 @@ function read_vzpkg_conf()
 	test -f $TEMPLATE_DIR/../../config/vzpkg.conf && source $TEMPLATE_DIR/../../config/vzpkg.conf
 	test -f $TEMPLATE_DIR/../config/vzpkg.conf && source $TEMPLATE_DIR/../config/vzpkg.conf
 	test -f $TEMPLATE_DIR/config/vzpkg.conf && source $TEMPLATE_DIR/config/vzpkg.conf
+	return 0
 }
