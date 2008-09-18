@@ -1,3 +1,8 @@
+vzpkg2 (0.9.5) unstable; urgency=low
+  * Fix read_vz_conf return code so it doesn't cause "set -e" scripts to fail.
+
+ -- Robert Nelson <robertn@the-nelsons.org>  Wed, 17 Sep 2008 21:04:02 -0700
+
 vzpkg2 (0.9.4) unstable; urgency=low
   * Use vzpkg.conf for global settings rather than vz.conf.
   * Use correct scripts directory on 64 bit systems

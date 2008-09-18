@@ -80,6 +80,9 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Sep 17 2008 Robert Nelson <robertn@the-nelsons.org> 0.9.5
+  - Fix read_vz_conf return code so it doesn't cause "set -e" scripts to fail.
+
 * Tue Sep 16 2008 Robert Nelson <robertn@the-nelsons.org> 0.9.4
   - Use vzpkg.conf for global settings rather than vz.conf.
   - Use correct scripts directory on 64 bit systems
