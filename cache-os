@@ -86,23 +86,28 @@ REMOVE=''
 FORCE=''
 NO_PKG_CACHER=''
 
-case $1 in
-	-r | --remove)
-		REMOVE=yes
-		shift
-		;;
-	-f | --force)
-		FORCE=yes
-		shift
-		;;
-	-n|--no-pkg-cacher)
-		NO_PKG_CACHER=yes
-		shift
-		;;
-	-*)
-		log2 "Unknown option: $1"
-		usage
-esac
+while test $# -gt 0; do
+	case $1 in
+		-r | --remove)
+			REMOVE=yes
+			shift
+			;;
+		-f | --force)
+			FORCE=yes
+			shift
+			;;
+		-n|--no-pkg-cacher)
+			NO_PKG_CACHER=yes
+			shift
+			;;
+		-*)
+			log2 "Unknown option: $1"
+			usage
+		*)
+			break
+			;;
+	esac
+done
 
 TEMPLATE=`get_vz_var TEMPLATE`
 
