@@ -103,6 +103,7 @@ while test $# -gt 0; do
 		-*)
 			log2 "Unknown option: $1"
 			usage
+			;;
 		*)
 			break
 			;;
