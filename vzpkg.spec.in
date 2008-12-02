@@ -80,6 +80,14 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec  1 2008 Robert Nelson <robertn@the-nelsons.org> 1.0.0
+  - Updated copyrights.
+
+  - Add support for generating templates without pkg-cacher.
+
+  - Changed defaults to work with pkg-cacher running as a cgi script or 
+    stand-alone.
+
 * Tue Sep 17 2008 Robert Nelson <robertn@the-nelsons.org> 0.9.5
   - Fix read_vz_conf return code so it doesn't cause "set -e" scripts to fail.
 

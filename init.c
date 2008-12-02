@@ -1,4 +1,4 @@
-/* $Id: init.c,v 1.5 2006/05/11 14:23:39 kir Exp $
+/* $Id$
  * Init -- very simple init stub
  * Shamelessly borrowed from old vzpkgtools.
  *

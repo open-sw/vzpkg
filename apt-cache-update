@@ -5,6 +5,9 @@
 # Copyright (C) 2008, Robert Nelson. Licensed under GPLv2.
 # By Robert Nelson.
 #
+# Portions originally:
+# Copyright (C) 2003, 2004, 2005, 2006 by SWsoft. Licensed under GNU GPL.
+#
 
 test -n "$DEBUG_EXEC" && set -x
 

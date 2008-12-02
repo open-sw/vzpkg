@@ -1,8 +1,8 @@
-.TH vzpkgcache 8 "Sep 15, 2008" "vzpkgcache(8)" "OpennVZ"
+.TH vzpkgcache 8 "Sep 15, 2008" "vzpkgcache(8)" "OpenVZ"
 .SH NAME
 vzpkgcache \- create a tarball (cache) of VE private area
 .SH SYNOPSIS
-\fBvzpkgcache\fR [\fB-f\fR|\fB--force\fR] [\fIosname\fR [...]]
+\fBvzpkgcache\fR [\fB-f\fR|\fB--force\fR] [\fB-n\fR|\fB--no-pkg-cacher\fR] [\fIosname\fR [...]]
 .br
 \fBvzpkgcache\fR [\fB-r\fR|\fB--remove\fR] \fIosname\fR [...]
 .br
@@ -25,6 +25,10 @@ is not applied when using \fB-r\fR option -- in this case you have to specify
 Force new tarball creation. Without this option, and if cache for given
 OS template already exists, utility tries to update its packages. With
 this option, cache tarball is created "from scratch".
+.TP
+\FB\-n\fR, \fB\-\-no-pkg-cacher\fR
+Configures template to use the standard repositories for distribution installs 
+and updates rather than the pkg\-cacher.
 .TP
 \fB\-r\fR, \fB\-\-remove\fR
 Remove caches for given OS template(s).

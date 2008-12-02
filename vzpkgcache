@@ -1,8 +1,13 @@
 #!/bin/bash
-# $Id: vzpkgcache,v 1.5 2005/10/25 10:51:43 kir Exp $
+# vim: ts=4 sw=4 ai noet
+# $Id$
 #
 # vzpkgcache - create cached tarball for OS packages.
 #
+# Copyright (C) 2008, Robert Nelson. Licensed under GPLv2.
+# By Robert Nelson.
+#
+# Portions originally:
 # Copyright (C) 2005 by SWsoft. Licensed under QPL.
 # By Kir Kolyshkin.
 
@@ -15,34 +20,40 @@ log4 Started $0 $*
 
 function usage() {
         cat << USAGE_EOF 1>&2
-Usage:	$PROGNAME [-f|--force] [osname ...] -- create/update OS cache(s)
+Usage:	$PROGNAME [-f|--force] [-n|--no-pkg-cacher] [osname ...] -- create/update OS cache(s)
 	$PROGNAME -r|--remove osname [...]  -- remove OS cache(s)
 	$PROGNAME -h|--help                 -- see this
 USAGE_EOF
         exit $1
 }
 
-OPTION=""
+FORCE=""
+NO_PKG_CACHER=""
+REMOVE=""
 
-case $1 in
-	-f|--force)
-		FORCE=1
-		OPTION="-f"
-		shift
-		;;
-	-r|--remove)
-		REMOVE=1
-		OPTION="-r"
-		shift
-		;;
-	-h|-?|--help)
-		usage 0
-		;;
-	-*)
-		echo "Error: unknown option: $1" 1>&2
-		usage 1
-		;;
-esac
+while test $# -gt 0; do
+	case $1 in
+		-f|--force)
+			FORCE="-f"
+			shift
+			;;
+		-n|--no-pkg-cacher)
+			NO_PKG_CACHER="-n"
+			shift
+			;;
+		-r|--remove)
+			REMOVE="-r"
+			shift
+			;;
+		-h|-?|--help)
+			usage 0
+			;;
+		-*)
+			echo "Error: unknown option: $1" 1>&2
+			usage 1
+			;;
+	esac
+done
 
 TEMPLATE=`get_vz_var TEMPLATE`
 
@@ -75,6 +86,6 @@ test -z "$OST_LIST" && abort "No osnames given/found."
 
 # Do the cache
 for OS in $OST_LIST; do
-	log4 "Calling cache-os $OPTION $OS"
-	$TOOLDIR/cache-os $OPTION $OS
+	log4 "Calling cache-os $FORCE $NO_PKG_CACHER $REMOVE $OS"
+	$TOOLDIR/cache-os $FORCE $NO_PKG_CACHER $REMOVE $OS
 done

@@ -1,7 +1,11 @@
 #!/bin/bash
 # vim: ts=4 sw=4 ai noet
-# $Id: functions,v 1.24 2006/05/11 14:28:35 kir Exp $
+# $Id$
 #
+# Copyright (C) 2008, Robert Nelson. Licensed under GPLv2.
+# By Robert Nelson.
+#
+# Portions originally:
 # Copyright (C) 2004, 2005, 2006, SWsoft. Licensed under GNU GPL v.2.
 # By Kir Kolyshkin.
 #

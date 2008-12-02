@@ -1,3 +1,13 @@
+vzpkg2 (1.0.0) unstable; urgency=low
+  * Updated copyrights.
+
+  * Add support for generating templates without pkg-cacher.
+
+  * Changed defaults to work with pkg-cacher running as a cgi script or 
+    stand-alone.
+
+ -- Robert Nelson <robertn@the-nelsons.org>  Mon, 01 Dec 2008 21:16:14 -0800
+
 vzpkg2 (0.9.5) unstable; urgency=low
   * Fix read_vz_conf return code so it doesn't cause "set -e" scripts to fail.
 

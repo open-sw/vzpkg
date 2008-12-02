@@ -1,5 +1,5 @@
 NAME    = vzpkg2
-VERSION = 0.9.5
+VERSION = 1.0.0
 
 ETCDIR = /etc/vz
 BINDIR  = /usr/bin
